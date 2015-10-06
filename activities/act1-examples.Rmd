@@ -1,0 +1,131 @@
+
+```{r setup, include=FALSE}
+library(PerformanceAnalytics)
+library(zoo)
+```
+
+# Atividade 1 - Análise estatística
+
+## Carregando os arquivos do Yahoo! Finance
+
+Vamos carregar as séries de preços de fechamento ajustados de ambas as séries em uma única estrutura de dados de séries temporais chamada `act1Prices.z`.
+Note que utilizamos o pacote `zoo`, logo é necessário tê-lo carregado previamente.
+
+```{r}
+# SP500
+sp500.df <- read.csv('data/GSPC-1962-1994.daily.csv', header=TRUE, stringsAsFactors=FALSE)
+sp500.df$Date <- as.Date(sp500.df$Date)
+sp500.df <- sp500.df[order(sp500.df$Date),]
+sp500Prices.df <- sp500.df[, "Adj.Close", drop=FALSE]
+rownames(sp500Prices.df) <- sp500.df[, "Date"]
+colnames(sp500Prices.df) <- c("SP500")
+sp500.prices <- as.zoo(sp500Prices.df)
+index(sp500.prices) <- sp500.df[, "Date"]
+head(sp500.prices)
+# IBM
+ibm.df <- read.csv('data/IBM-1962-1994.daily.csv', header=TRUE, stringsAsFactors=FALSE)
+ibm.df$Date <- as.Date(ibm.df$Date)
+ibm.df <- ibm.df[order(ibm.df$Date),]
+ibmPrices.df <- ibm.df[, "Adj.Close", drop=FALSE]
+rownames(ibmPrices.df) <- ibm.df[, "Date"]
+colnames(ibmPrices.df) <- c("IBM")
+ibm.prices <- as.zoo(ibmPrices.df)
+index(ibm.prices) <- ibm.df[, "Date"]
+head(ibm.prices)
+# Merging series
+act1Prices.z <- merge(sp500.prices, ibm.prices)
+head(act1Prices.z)
+# Calculando retornos
+act1Returns.z <- diff(log(act1Prices.z))
+plot(act1Returns.z, col="red", lwd=2, main="Daily cc returns")
+```
+
+Bem, calculados os retornos, vamos dividir as séries em 4 partes iguais.
+
+```{r}
+# Quantidade de linhas
+n = nrow(sp500.prices)
+# SP500
+dim(sp500.prices) <- c(n/4, 4)
+colnames(sp500.prices) <- paste("SP500", 1:4)
+head(sp500.prices)
+# IBM
+dim(ibm.prices) <- c(n/4, 4)
+colnames(ibm.prices) <- paste("IBM", 1:4)
+head(ibm.prices)
+# Merging series
+act1partsPrices.z <- merge(sp500.prices[,1:4], ibm.prices[,1:4])
+head(act1partsPrices.z)
+act1partsReturns.z <- diff(log(act1partsPrices.z))
+plot(act1partsReturns.z, col="red", lwd=1, main="Daily cc returns")
+```
+
+
+
+## Estatísticas em retornos simples
+
+Infelizmente uma coisa *tricky*, as funções do core do R não funcionam adequadamente com objetos `zoo` de séries temporais, logo, devemos fazer uma cópia do objeto em forma de matriz.
+
+```{r}
+# Serie completa
+ret.mat <- coredata(act1Returns.z)
+class(ret.mat)
+colnames(ret.mat)
+head(ret.mat)
+# Para as partes
+retparts.mat <- coredata(act1partsReturns.z)
+```
+
+Note que a estrutura de ordenação e colunas é mantida.
+
+```{r}
+# Estatisticas para as series completas
+apply(ret.mat, 2, mean)
+apply(ret.mat, 2, sd)
+myacf <- function(x) { acf(x, lag.max=1, type="correlation", plot=FALSE) }
+apply(ret.mat, 2, myacf)
+# Para as partes
+apply(retparts.mat, 2, mean)
+apply(retparts.mat, 2, sd)
+apply(retparts.mat, 2, myacf)
+```
+
+## Histogramas
+
+```{r}
+IBM.hist = hist(ret.mat[,2], plot=FALSE, breaks=30)
+par(mfrow=c(2,1))
+    hist(ret.mat[,1], main="SP500", col="slateblue1", xlab="returns", breaks=IBM.hist$breaks)
+    hist(ret.mat[,2], main="IBM", col="slateblue1", xlab="returns", breaks=IBM.hist$breaks)
+par(mfrow=c(1,1))
+```
+
+### Histogramas *alisados* - `density`
+
+```{r}
+SP500.density = density(ret.mat[,1])
+hist(ret.mat[,1], main="Histogram and smoothed density", col="slateblue1", probability=TRUE, ylim=c(0,5), xlab="Returns")
+points(SP500.density, type="l", col="orange", lwd=2)
+```
+
+
+## Boxplot
+
+```{r}
+boxplot(ret.mat[,1], ret.mat[,2], names=c("SP500","IBM"), outchar=TRUE, col="slateblue1", main="Comparison of return distributions", ylab="monthly cc return")
+```
+
+
+
+## Assimetria e kurtose
+
+As funções *skewness* e *kurtose* pertencem ao pacote `PerformanceAnalytics`.
+
+```{r}
+# Estatisticas para as series completas
+apply(ret.mat, 2, skewness)
+apply(ret.mat, 2, kurtosis)
+# Para as partes
+apply(retparts.mat, 2, skewness)
+apply(retparts.mat, 2, kurtosis)
+```

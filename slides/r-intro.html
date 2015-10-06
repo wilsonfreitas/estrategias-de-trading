@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>R intro</title>
+  <meta charset="utf-8">
+  <meta name="description" content="R intro">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>R intro</h1>
+        <h2>deeply based on vignette source 'RIntro.Rnw'</h2>
+        <p>Wilson Freitas<br/>Quant</p>
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Define where you are about to work</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; getwd()
+</code></pre>
+
+<pre><code>## [1] &quot;/Users/wilson&quot;
+</code></pre>
+
+<pre><code class="r">&gt; setwd(&quot;/Users/wilson/Google Drive/dev/trading-strategies/slides&quot;)
+&gt; getwd()
+</code></pre>
+
+<pre><code>## [1] &quot;/Users/wilson/Google Drive/dev/trading-strategies/slides&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Creating <code>numeric</code> variables</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; y &lt;- 5  # y = 5 also work but &lt;- is R stylish
+&gt; y
+</code></pre>
+
+<pre><code>## [1] 5
+</code></pre>
+
+<pre><code class="r">&gt; class(y)
+</code></pre>
+
+<pre><code>## [1] &quot;numeric&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Creating <code>numeric</code> vectors</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; x &lt;- c(3.1416, 2.7183, 1, 3)
+&gt; x
+</code></pre>
+
+<pre><code>## [1] 3.142 2.718 1.000 3.000
+</code></pre>
+
+<pre><code class="r">&gt; x[2]  # indexing
+</code></pre>
+
+<pre><code>## [1] 2.718
+</code></pre>
+
+<pre><code class="r">&gt; class(x)
+</code></pre>
+
+<pre><code>## [1] &quot;numeric&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Creating <code>matrix</code> variables</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; m &lt;- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), nrow = 3)
+&gt; m
+</code></pre>
+
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    4    7
+## [2,]    2    5    8
+## [3,]    3    6    9
+</code></pre>
+
+<pre><code class="r">&gt; class(m)
+</code></pre>
+
+<pre><code>## [1] &quot;matrix&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Creating <code>data.frame</code> variables</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; tab &lt;- data.frame(store = c(&quot;downtown&quot;, &quot;eastside&quot;, &quot;airport&quot;), sales = c(32, 
++     17, 24))
+&gt; tab
+</code></pre>
+
+<pre><code>##      store sales
+## 1 downtown    32
+## 2 eastside    17
+## 3  airport    24
+</code></pre>
+
+<pre><code class="r">&gt; class(tab)
+</code></pre>
+
+<pre><code>## [1] &quot;data.frame&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Creating string vectors (<code>character</code> type)</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">cities &lt;- c(&quot;Seattle&quot;, &quot;Portland&quot;, &quot;San Francisco&quot;)
+cities
+</code></pre>
+
+<pre><code>## [1] &quot;Seattle&quot;       &quot;Portland&quot;      &quot;San Francisco&quot;
+</code></pre>
+
+<pre><code class="r">class(cities)
+</code></pre>
+
+<pre><code>## [1] &quot;character&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Checking who is out there</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; ls()  # list variables in workspace (memory)
+</code></pre>
+
+<pre><code>## [1] &quot;cities&quot; &quot;f&quot;      &quot;m&quot;      &quot;tab&quot;    &quot;x&quot;      &quot;y&quot;
+</code></pre>
+
+<pre><code class="r">&gt; # cleaning up memory
+&gt; rm(list = ls())
+&gt; ls()
+</code></pre>
+
+<pre><code>## character(0)
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>vectorized operations</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">&gt; constants &lt;- c(3.1416, 2.7183, 1.4142, 1.618)
+&gt; names(constants) &lt;- c(&quot;pi&quot;, &quot;euler&quot;, &quot;sqrt2&quot;, &quot;golden&quot;)  # naming vector elements
+&gt; constants
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##  3.142  2.718  1.414  1.618
+</code></pre>
+
+<pre><code class="r">&gt; constants^2  # squaring all elements
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##  9.870  7.389  2.000  2.618
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+	<hgroup>
+		<h2>vector indexing</h2>
+	</hgroup> 
+	<article class="smaller">
+		<pre><code class="r">&gt; c(constants[c(1, 3, 4)], constants[c(-1, -2)])
+</code></pre>
+
+<pre><code>##     pi  sqrt2 golden  sqrt2 golden 
+##  3.142  1.414  1.618  1.414  1.618
+</code></pre>
+
+<pre><code class="r">&gt; constants[c(&quot;pi&quot;, &quot;golden&quot;)]
+</code></pre>
+
+<pre><code>##     pi golden 
+##  3.142  1.618
+</code></pre>
+
+<pre><code class="r">&gt; constants &gt; 2
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##   TRUE   TRUE  FALSE  FALSE
+</code></pre>
+
+<pre><code class="r">&gt; constants[constants &gt; 2]
+</code></pre>
+
+<pre><code>##    pi euler 
+## 3.142 2.718
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-10" style="background:;">
+	<hgroup>
+		<h2>recycling rule</h2>
+	</hgroup> 
+	<article class="smaller">
+		<pre><code class="r">&gt; constants
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##  3.142  2.718  1.414  1.618
+</code></pre>
+
+<pre><code class="r">&gt; constants * 2
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##  6.283  5.437  2.828  3.236
+</code></pre>
+
+<pre><code class="r">&gt; constants * c(0, 1)
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##  0.000  2.718  0.000  1.618
+</code></pre>
+
+<pre><code class="r">&gt; constants * c(0, 1, 2)
+</code></pre>
+
+<pre><code>## Warning: longer object length is not a multiple of shorter object length
+</code></pre>
+
+<pre><code>##     pi  euler  sqrt2 golden 
+##  0.000  2.718  2.828  0.000
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-11" style="background:;">
+	<hgroup>
+		<h2>sequences</h2>
+	</hgroup> 
+	<article class="smaller">
+		<pre><code class="r">&gt; 1:5
+</code></pre>
+
+<pre><code>## [1] 1 2 3 4 5
+</code></pre>
+
+<pre><code class="r">&gt; -5:5
+</code></pre>
+
+<pre><code>##  [1] -5 -4 -3 -2 -1  0  1  2  3  4  5
+</code></pre>
+
+<pre><code class="r">&gt; seq(from = 0, to = 1, len = 5)
+</code></pre>
+
+<pre><code>## [1] 0.00 0.25 0.50 0.75 1.00
+</code></pre>
+
+<pre><code class="r">&gt; seq(from = 0, to = 20, by = 2.5)
+</code></pre>
+
+<pre><code>## [1]  0.0  2.5  5.0  7.5 10.0 12.5 15.0 17.5 20.0
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-12" style="background:;">
+	<hgroup>
+		<h2>sequences</h2>
+	</hgroup> 
+	<article class="smaller">
+		<pre><code class="r">&gt; seq(0, 10, 2)
+</code></pre>
+
+<pre><code>## [1]  0  2  4  6  8 10
+</code></pre>
+
+<pre><code class="r">&gt; seq(by = 2, 0, 10)
+</code></pre>
+
+<pre><code>## [1]  0  2  4  6  8 10
+</code></pre>
+
+<pre><code class="r">&gt; seq(0, 10, len = 5)
+</code></pre>
+
+<pre><code>## [1]  0.0  2.5  5.0  7.5 10.0
+</code></pre>
+
+<pre><code class="r">&gt; seq(0, 10)
+</code></pre>
+
+<pre><code>##  [1]  0  1  2  3  4  5  6  7  8  9 10
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-13" style="background:;">
+	<hgroup>
+		<h2><code>rep</code> function</h2>
+	</hgroup> 
+	<article class="smaller">
+		<pre><code class="r">&gt; rep(0, 10)  # initialize a vector
+</code></pre>
+
+<pre><code>##  [1] 0 0 0 0 0 0 0 0 0 0
+</code></pre>
+
+<pre><code class="r">&gt; rep(1:4, 2)  # repeat pattern 2 times
+</code></pre>
+
+<pre><code>## [1] 1 2 3 4 1 2 3 4
+</code></pre>
+
+<pre><code class="r">&gt; rep(1:4, each = 2)  # repeat each element 2 times
+</code></pre>
+
+<pre><code>## [1] 1 1 2 2 3 3 4 4
+</code></pre>
+
+<pre><code class="r">&gt; rep(1:4, c(2, 1, 2, 1))
+</code></pre>
+
+<pre><code>## [1] 1 1 2 3 3 4
+</code></pre>
+
+<pre><code class="r">&gt; rep(1:4, each = 2, len = 10)  # 8 integers plus two recycled 1&#39;s.
+</code></pre>
+
+<pre><code>##  [1] 1 1 2 2 3 3 4 4 1 1
+</code></pre>
+
+<pre><code class="r">&gt; rep(1:4, each = 2, times = 3)  # length 24, 3 complete replications
+</code></pre>
+
+<pre><code>##  [1] 1 1 2 2 3 3 4 4 1 1 2 2 3 3 4 4 1 1 2 2 3 3 4 4
+</code></pre>
+
+	</article>
+</slide>
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

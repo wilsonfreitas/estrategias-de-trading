@@ -1,0 +1,238 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Intraday Pairs trading</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-04-13"><meta name="DC.source" content="Demo2_Pairs_Trading.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Intraday Pairs trading</h1><!--introduction--><p>This demo shows how functionality within Econometric Toolbox can be used to identify and calibrate a simple, intraday pairs trading strategy.</p><p>Copyright 2010-2011, The MathWorks, Inc. All rights reserved.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Load intraday data from a database</a></li><li><a href="#3">The cointegration test framework</a></li><li><a href="#6">The pairs trading strategy</a></li></ul></div><h2>Load intraday data from a database<a name="1"></a></h2><p>We will download intraday data for Brent Crude (LCO) from our database.  We will also download data corresponding to West Texas Intermediate (WTI).</p><pre class="codeinput">LCO = getMinuteDataFromDB(<span class="string">'LCO'</span>);
+WTI = getMinuteDataFromDB(<span class="string">'WTI'</span>);
+
+pairsChart(LCO, WTI)
+
+<span class="comment">% These two time series have historically tracked each other, but since</span>
+<span class="comment">% December 2010, LCO has consistently traded higher than WTI.  It would</span>
+<span class="comment">% seem that a pairs trading strategy would not work in 2011, but if we are</span>
+<span class="comment">% willing to actively recalibrate our model on an intraday basis, we may</span>
+<span class="comment">% find profitable opportunities.</span>
+</pre><img vspace="5" hspace="5" src="Demo2_Pairs_Trading_01.png" alt=""> <p>Let's focus on the last 11 days' of data:</p><pre class="codeinput">series = [LCO(end-4620+1 : end, 4) WTI(end-4620+1 : end, 4)];
+plot(series)
+legend(<span class="string">'LCO'</span>,<span class="string">'WTI'</span>)
+</pre><img vspace="5" hspace="5" src="Demo2_Pairs_Trading_02.png" alt=""> <h2>The cointegration test framework<a name="3"></a></h2><p>Econometrics Toolbox supports both the Engle-Granger and the Johansen cointegration frameworks.  Engle-Granger is the older model, and Johansen is particularly useful for analyzing more than two time series at a time. We will use Engle-Granger for our trading model.</p><pre class="codeinput"><span class="comment">% First, we note that the last 11 days are not cointegrated as a whole</span>
+egcitest(series)
+<span class="comment">% (A zero indicates failure to reject the null hypothesis that no</span>
+<span class="comment">% cointegrating relationship exists.)</span>
+</pre><pre class="codeoutput">
+ans =
+
+     0
+
+</pre><p>Even so, there are smaller windows of time where a cointegrating relationship does exist.</p><pre class="codeinput">[h, ~, ~, ~, reg1] = egcitest(series(1700:2000, :));
+display(h)
+</pre><pre class="codeoutput">
+h =
+
+     1
+
+</pre><p>The test estimates the coefficients of the cointegrating regression as well as the residuals and the standard errors of the residuals: all useful information for any pairs trading strategy.</p><pre class="codeinput">display(reg1)
+</pre><pre class="codeoutput">
+reg1 = 
+
+       num: 301
+      size: 301
+     names: {2x1 cell}
+     coeff: [2x1 double]
+        se: [2x1 double]
+       Cov: [2x2 double]
+    tStats: [1x1 struct]
+     FStat: [1x1 struct]
+       yMu: 110.7448
+    ySigma: 0.3043
+      yHat: [301x1 double]
+       res: [301x1 double]
+    DWStat: 0.1891
+       SSR: 13.0123
+       SSE: 14.7666
+       SST: 27.7789
+       MSE: 0.0494
+      RMSE: 0.2222
+       RSq: 0.4684
+      aRSq: 0.4666
+        LL: 26.6152
+       AIC: -49.2304
+       BIC: -41.8162
+       HQC: -46.2636
+
+</pre><h2>The pairs trading strategy<a name="6"></a></h2><p>The following function describes our pairs strategy.</p><pre class="codeinput">edit <span class="string">pairs</span>
+</pre><p>We may test this strategy as we do our other rules:</p><pre class="codeinput">pairs(series, 420, 60)
+<span class="comment">% Note that this strategy will not trade if the most recent minutes do not</span>
+<span class="comment">% show signs of cointegration and that the size of the long/short positions</span>
+<span class="comment">% are dynamically scaled with the volatility of the cointegrating</span>
+<span class="comment">% relationship.  Many other customizations can be made.</span>
+</pre><img vspace="5" hspace="5" src="Demo2_Pairs_Trading_03.png" alt=""> <p>We can use our existing parameter sweep framework to identify the best combination of calibration window and rebalancing frequency.</p><pre class="codeinput"><span class="keyword">if</span> matlabpool(<span class="string">'size'</span>) == 0
+    matlabpool <span class="string">local</span>
+<span class="keyword">end</span>
+
+window = 120:60:420;
+freq   = 10:10:60;
+range = {window, freq};
+
+annualScaling = sqrt(250*7*60);
+cost = 0.01;
+
+pfun = @(x) pairsFun(x, series, annualScaling, cost);
+
+tic
+[~,param] = parameterSweep(pfun,range);
+toc
+
+pairs(series, param(1), param(2), 1, annualScaling, cost)
+</pre><pre class="codeoutput">Starting matlabpool using the 'local' configuration ... connected to 8 labs.
+Elapsed time is 32.812738 seconds.
+</pre><img vspace="5" hspace="5" src="Demo2_Pairs_Trading_04.png" alt=""> <p>Despite the fact that these historically-tracking time series have diverged, we can still create a profitable pairs trading strategy by frequently recalibrating.</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Intraday Pairs trading
+% This demo shows how functionality within Econometric Toolbox can be used
+% to identify and calibrate a simple, intraday pairs trading strategy.
+%
+% Copyright 2010-2011, The MathWorks, Inc.
+% All rights reserved.
+
+%% Load intraday data from a database
+% We will download intraday data for Brent Crude (LCO) from our
+% database.  We will also download data corresponding to West Texas
+% Intermediate (WTI).
+
+LCO = getMinuteDataFromDB('LCO');
+WTI = getMinuteDataFromDB('WTI');
+
+pairsChart(LCO, WTI)
+
+% These two time series have historically tracked each other, but since
+% December 2010, LCO has consistently traded higher than WTI.  It would
+% seem that a pairs trading strategy would not work in 2011, but if we are
+% willing to actively recalibrate our model on an intraday basis, we may
+% find profitable opportunities.
+%%
+% Let's focus on the last 11 days' of data:
+series = [LCO(end-4620+1 : end, 4) WTI(end-4620+1 : end, 4)];
+plot(series)
+legend('LCO','WTI')
+%% The cointegration test framework
+% Econometrics Toolbox supports both the Engle-Granger and the Johansen
+% cointegration frameworks.  Engle-Granger is the older model, and Johansen
+% is particularly useful for analyzing more than two time series at a time.
+% We will use Engle-Granger for our trading model.
+
+% First, we note that the last 11 days are not cointegrated as a whole
+egcitest(series)
+% (A zero indicates failure to reject the null hypothesis that no
+% cointegrating relationship exists.)
+%%
+% Even so, there are smaller windows of time where a cointegrating
+% relationship does exist.
+[h, ~, ~, ~, reg1] = egcitest(series(1700:2000, :));
+display(h)
+%%
+% The test estimates the coefficients of the cointegrating regression as
+% well as the residuals and the standard errors of the residuals: all
+% useful information for any pairs trading strategy.
+display(reg1)
+
+%% The pairs trading strategy
+% The following function describes our pairs strategy.
+edit pairs
+
+%%
+% We may test this strategy as we do our other rules:
+pairs(series, 420, 60)
+% Note that this strategy will not trade if the most recent minutes do not
+% show signs of cointegration and that the size of the long/short positions
+% are dynamically scaled with the volatility of the cointegrating
+% relationship.  Many other customizations can be made.
+
+%%
+% We can use our existing parameter sweep framework to identify the best
+% combination of calibration window and rebalancing frequency.
+if matlabpool('size') == 0
+    matlabpool local
+end
+
+window = 120:60:420;
+freq   = 10:10:60;
+range = {window, freq};
+
+annualScaling = sqrt(250*7*60);
+cost = 0.01;
+
+pfun = @(x) pairsFun(x, series, annualScaling, cost);
+
+tic
+[~,param] = parameterSweep(pfun,range);
+toc
+
+pairs(series, param(1), param(2), 1, annualScaling, cost)
+%%
+% Despite the fact that these historically-tracking time series have
+% diverged, we can still create a profitable pairs trading strategy by
+% frequently recalibrating.
+##### SOURCE END #####
+--></body></html>

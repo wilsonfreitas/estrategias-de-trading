@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Propriedades de estimadores e testes estatísticos simples</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Propriedades de estimadores e testes estatísticos simples">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Propriedades de estimadores e testes estatísticos simples</h1>
+        <h2></h2>
+        <p>Wilson Freitas<br/>Quant</p>
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+	<hgroup>
+		<h2>Estimadores</h2>
+	</hgroup> 
+	<article class="smaller">
+		<ul>
+<li>Seja uma variável aleatória \(X\).</li>
+<li>Temos \(\theta = g(X)\), uma função da variável aleatória, que retorna um número real.</li>
+<li>Consideremos agora uma amostra aleatória \({x_i}\) da variável aleatória \(X\).</li>
+<li>A amostra \({x_i}\) é um conjunto que pertence a \(\sigma\)-álgebra de \(X\), ou seja, é um evento possível dentro do seu espaço probabilístico.</li>
+<li>Ao calcularmos \(\theta\) para a amostra \({x_i}\), vamos chamar este resultado de \(\hat{\theta}\), estaremos obtendo um evento possível que pertence ao espaço probabilístico de \(\theta\), logo, \(\hat{\theta} \in \cal{f}_{\theta}\), onde \(\cal{f}_{\theta}\) é a \(\sigma\)-álgebra de \(\theta\).</li>
+<li>Desta forma, para novas amostras \({x_i}\) obteremos diferentes valores para \(\hat{\theta}\), e portanto, assim com a amostra é aleatória os resuldados de \(\hat{\theta}\) para estas amostras também o são.</li>
+</ul>
+
+<p>\[
+\begin{split}
+\theta: & \textrm{parâmetro a ser estimado, número real}\\
+\hat{\theta}: & \textrm{estimador do parâmetro, variável aleatória}
+\end{split}
+\]</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Propriedades de estimadores</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>\(\hat{\theta}\) é uma variável aleatória</li>
+<li>\(\hat{\theta} \sim f(\hat{\theta})\) que é a função de densidade de probabilidade (fdp) de \(\hat{\theta}\) (estou considerando apenas variáveis aleatórias reais). Esta fdp pode ser encontrada analiticamente ou através de simulação de Monte-Carlo.</li>
+<li>Erro de estimação: 
+\[
+error(\hat{\theta}, \theta) = \hat{\theta} - \theta
+\]</li>
+<li>Valor esperado do erro de estimação (viés/bias):
+\[
+bias(\hat{\theta}, \theta) = E[error(\hat{\theta}, \theta)] = E[\hat{\theta} - \theta] = E[\hat{\theta}] - \theta
+\]</li>
+<li>\(\hat{\theta}\) é não-viesado se \(bias(\hat{\theta}, \theta) = 0\), logo, \(E[\hat{\theta}] = \theta\)</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Propriedades de estimadores</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>Erro médio padrão (mse - mean standard error):
+\[
+\begin{split}
+mse(\hat{\theta}, \theta) &= E[error^2(\hat{\theta}, \theta)] \\
+&= E[(\hat{\theta}-\theta)^2] \\
+&= E[\hat{\theta}^2 - 2\hat{\theta}\theta + \theta^2] \\
+&= E[\hat{\theta}^2] - 2E[\hat{\theta}]\theta + \theta^2 \\
+&= E[\hat{\theta}^2] - E^2[\hat{\theta}] + E^2[\hat{\theta}] - 2E[\hat{\theta}]\theta + \theta^2 \\
+&= \sigma^2_{\hat{\theta}} + bias^2(\hat{\theta}, \theta)\\
+\end{split}
+\]</li>
+<li>Note que \(bias(\hat{\theta}, \theta) = 0 \Longrightarrow mse(\hat{\theta}, \theta) = \sigma^2_{\hat{\theta}}\)</li>
+<li>Erro padrão (se - standard error):
+\[
+se(\hat{\theta}) = \sqrt{\sigma^2_{\hat{\theta}}}
+\]</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Características importantes de estimadores</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>Bons estimadores tem pouco viés e pequeno erro padrão</li>
+<li>Precisão:
+\[
+\begin{split}
+\textrm{erro padrão grande}  &\longrightarrow \textrm{pior precisão} \\
+\textrm{erro padrão pequeno} &\longrightarrow \textrm{melhor precisão}
+\end{split}
+\]</li>
+<li>precisão aumenta com o tamanho da amostra
+\[
+T \longrightarrow \infty \Longrightarrow se(\hat{\theta}) \longrightarrow 0
+\]</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Teste t</h2>
+  </hgroup>
+  <article>
+    <p>Seja a variável aleatória \(Y \sim iid N(\mu, \sigma^2)\).
+Sabemos que a variável
+Para uma amostra \(\{y_i\}_{i \in N}\) queremos testar se o estimador \(\hat{\mu}\) é igual ao parâmetro a \(\mu\).
+Para tanto realizamos um teste com a estatística \(t(\hat{\mu}, \mu)\) dada por:</p>
+
+<p>\[
+t(\hat{\mu}, \mu) = \frac{error(\hat{\mu}, \mu)}{se(\hat{\mu})} = \frac{\hat{\mu} - \mu}{se(\hat{\mu})}
+\]</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

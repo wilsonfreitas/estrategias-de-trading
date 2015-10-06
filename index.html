@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Estratégias de Trading</title>
+	<meta name="subtitle" content=""/>
+	<meta name="author" content="Wilson N. de Freitas"/>
+	<meta name="affiliation" content="http://aboutwilson.net"/>
+	<meta name="date" content="October 28, 2012"/>
+	<meta name="copyright" content="2012 Wilson.  
+This work is licensed under a Creative Commons License.  
+http://creativecommons.org/licenses/by-sa/2.5/"/>
+	<meta name="keywords" content="trading strategies, risk, return, CAPM, trading, time series"/>
+	<link type="text/css" rel="stylesheet" href="style.css"/>
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-4510606-1']);
+_gaq.push(['_trackPageview']);
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+</head>
+<body>
+
+<h1 id="estratgiasdetrading">Estratégias de Trading</h1>
+
+<h2 id="monitor:brwilsonnascimentodefreitas">Monitor:<br/>Wilson Nascimento de Freitas</h2>
+
+<h4 id="introduodez2012">Introdução (dez/2012)</h4>
+
+<p>O curso de Estratégias de Trading foi oferecido como uma disciplina de tópicos no Mestrado Profissional em Finanças Quantitativas da FGV/EESP.
+Este site contém todo o material referente as aulas de monitoria que foram dadas no laboratório de computação.
+O objetivo aqui é apresentar as ferramentas utilizadas na implementação de estratégias de trading.</p>
+
+<p>O curso foi oferecido em 2011 e novamente em 2012, quando foi decidido utilizar R ao invés de MatLab, devido a vasta biblioteca existente sobre o tema em R.
+Todas as apresentações foram geradas em R utilizando os pacotes <a href="https://github.com/yihui/knitr">knitr</a> e <a href="http://ramnathv.github.com/slidify/">slidify</a>.</p>
+
+<h3 id="material">Material</h3>
+
+<ul>
+<li><a href="slides/r-intro.html">R intro</a>: diversos exemplos de comandos em R</li>
+<li><a href="slides/computing-returns.html">Computing Returns</a> [<a href="pdf/computing-returns.pdf">PDF</a>]: como calcular retornos e gerar gráficos utilizando o funções do pacote <code>base</code> do R e os pacotes <code>quantmod</code> e <code>PerformanceAnalytics</code>
+
+<ul>
+<li><a href="notes/yahoo-series.html">Acertando as séries do Yahoo! Finance no R</a> [<a href="pdf/yahoo-series.pdf">PDF</a>]: como acertar as séries do Yahoo! Finance baixadas em arquivos CSV</li>
+</ul></li>
+<li><a href="slides/time-series.html">Simulando séries temporais lineares</a> [<a href="pdf/time-series.pdf">PDF</a>]: simulando processos de séries temporais lineares (AR e MA)</li>
+<li><a href="slides/portfolio-theory.html">Teoria de carteiras de Markowitz</a> [<a href="pdf/portfolio-theory.pdf">PDF</a>]: cálculo de carteiras de eficientes, teoria de carteiras de Markowitz</li>
+<li><a href="slides/unit-root-tests.html">Testes de raiz unitária</a>[<a href="pdf/unit-root-tests.pdf">PDF</a>]: utilização dos testes de raiz unitária no pacote <code>urca</code> do R</li>
+<li><a href="slides/cointegration-tests.html">Testes de Cointegração</a>[<a href="pdf/cointegration-tests.pdf">PDF</a>]: como realizar os testes de cointegração no R</li>
+</ul>
+
+<h3 id="atividades">Atividades</h3>
+
+<ul>
+<li><a href="activities/act1.html">Atividade 1</a> [<a href="pdf/act1.pdf">PDF</a>]: análise de estatísticas descritiva aplicadas a séries temporais de retornos de preços de ações e índices
+
+<ul>
+<li><a href="activities/act1-examples.html">Exemplos de scripts</a> [<a href="pdf/act1-examples.pdf">PDF</a>]: exemplos de scripts para ajudar na execução da atividade</li>
+</ul></li>
+<li><a href="activities/TopicosFQ-PrimeirosProjetos.pdf">Primeiros projetos</a>
+
+<ul>
+<li>implementação de VAR</li>
+<li>pesquisa sobre causalidade de Granger</li>
+</ul></li>
+<li><a href="activities/ProjetoFinal-PairsTrading.pdf">Projeto final</a>
+
+<ul>
+<li>dados: <a href="activities/ProjetoFinalDados.xlsx">XLS</a>, <a href="activities/DadosFinalMatlab.mat">MATLAB</a></li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h3 id="linksteis">Links úteis</h3>
+
+<ul>
+<li><a href="http://faculty.chicagobooth.edu/ruey.tsay/teaching/introTS/">An Introduction to Analysis of Financial Data with R</a>: página para o livro do Ruey Tsay sobre análise de séries temporais financeiras com R</li>
+<li><a href="http://cran.r-project.org/web/packages/FinTS/index.html">FinTS: Companion to Tsay (2005) Analysis of Financial Time Series</a>: pacote desenvolvido em R para livro de análise de séries temporais financeiras do Prof. Tsay</li>
+<li><a href="http://tur-www1.massey.ac.nz/~pscowper/ts/">Introductory Time Series with R</a>: página do livro sobre séries temporais da coleção <a href="http://www.springer.com/series/6991"><em>User R!</em></a> da Springer</li>
+<li><a href="http://homepage.stat.uiowa.edu/~kchan/TSA.htm">Time Series Analysis with Applications in R</a>: outro site de séries temporais em R com diversos <em>datasets</em> e <em>scripts</em></li>
+<li><a href="http://flowingdata.com/2012/05/15/how-to-visualize-and-compare-distributions/">How to Visualize and Compare Distributions</a>: link do blog <a href="http://flowingdata.com">FlowingData</a> sobre como comparar e visualizar distribuições</li>
+</ul>
+
+<h3 id="linksder">Links de R</h3>
+
+<ul>
+<li><a href="http://cran.r-project.org/">CRAN</a>: The Comprehensive R Archive Network, site que centraliza todo boa parte dos pacotes desenvolvidos para R.</li>
+<li><a href="http://cran.fhcrc.org/web/packages/PerformanceAnalytics/index.html">PerformanceAnalytics</a>: Econometric tools for performance and risk analysis</li>
+<li><a href="http://cran.r-project.org/web/packages/quantmod/index.html">quantmod</a>: functions for quantitative modelling in finance</li>
+<li><a href="http://cran.fhcrc.org/web/packages/zoo/index.html">zoo</a>: Z&#8217;s ordered observations</li>
+<li><a href="http://cran.fhcrc.org/web/packages/xts/index.html">xts</a>: Extensible time series</li>
+<li><a href="http://cran.fhcrc.org/web/packages/tseries/index.html">tseries</a>: Time series analysis and computational finance</li>
+<li><a href="http://cran.r-project.org/web/packages/fPortfolio/index.html">fPortfolio</a>: Portfolio Selection and Optimization</li>
+<li><a href="http://cran.fhcrc.org/web/packages/mvtnorm/index.html">mvtnorm</a>: Multivariate normal and multivariate t distribution</li>
+</ul>
+
+</body>
+</html>

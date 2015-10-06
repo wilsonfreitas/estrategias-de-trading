@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teoria de carteiras de Markowitz</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Teoria de carteiras de Markowitz">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Teoria de carteiras de Markowitz</h1>
+        <h2></h2>
+		<p data-config-presenter>
+        <!-- <p>Wilson Freitas<br/>Quant</p> -->
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <!-- 
+VALE3: jan 2000 - nov 2012
+USIM5: jan 2000 - nov 2012
+PETR3: jan 2000 - nov 2012
+PETR3: jan 2000 - nov 2012
+
+*BBDC3: jan 2000 - nov 2012
+PETR4: jan 2000 - nov 2012
+USIM3: jan 2000 - nov 2012
+
+VALE5: jan 2003 - nov 2012
+ITUB4: jan 2001 - nov 2012
+-->
+
+<h2>download de recursos</h2>
+
+<ul>
+<li><a href="index.Rmd">index.Rmd</a>: código fonte da apresentação</li>
+<li><a href="scripts/portfolio.r">portfolio.r</a>: conjunto de funções em R para cálculo de fronteira eficiente de carteiras desenvolvido por Eric Zivot</li>
+<li><a href="scripts/getReturns.r">getReturns.r</a>: funções para facilitar o cálculo de retorno de séries temporais carregadas de arquivos do Yahoo! Finance</li>
+<li><a href="data/PETR3.monthly.raw.csv">PETR3.monthly.raw.csv</a>,  <a href="data/PETR4.monthly.raw.csv">PETR4.monthly.raw.csv</a></li>
+<li><a href="data/VALE3.monthly.raw.csv">VALE3.monthly.raw.csv</a>,  <a href="data/VALE5.monthly.raw.csv">VALE5.monthly.raw.csv</a></li>
+<li><a href="data/USIM3.monthly.raw.csv">USIM3.monthly.raw.csv</a>,  <a href="data/USIM5.monthly.raw.csv">USIM5.monthly.raw.csv</a></li>
+<li><a href="data/ITUB3.monthly.raw.csv">ITUB3.monthly.raw.csv</a>,  <a href="data/ITUB4.monthly.raw.csv">ITUB4.monthly.raw.csv</a></li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Carregando <code>getReturns.r</code></h2>
+  </hgroup>
+  <article>
+    <p>É necessário carregar o <em>módulo</em> <code>getReturns.r</code> que contém a função <code>getReturnsFromYahooFiles</code>, que será útil para gerar os retornos a partir dos dados baixados do Yahoo! Finance.</p>
+
+<pre><code class="r">source(&quot;scripts/getReturns.r&quot;)
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Carregando as séries temporais</h2>
+  </hgroup>
+  <article>
+    <p>Os arquivos CSV foram baixados do Yahoo! Finance e contém os dados de preços das ações com periodicidade mensal (referentes ao começo de cada mês).
+A função <code>getReturnsFromYahooFiles</code> carrega os arquivos e devolve as séries de retornos referentes a coluna de preço de fechamento ajustado (<code>Adj.Close</code>).</p>
+
+<pre><code class="r">filelist &lt;- c(&quot;data/VALE3.monthly.raw.csv&quot;, &quot;data/PETR3.monthly.raw.csv&quot;)
+returns.monthly.x &lt;- getReturnsFromYahooFiles(filelist)
+</code></pre>
+
+<pre><code>##             VALE3     PETR3
+## Feb 2000  0.01646  0.234749
+## Mar 2000 -0.01646  0.024317
+## Apr 2000  0.00000 -0.094410
+## May 2000  0.04066  0.009852
+## Jun 2000  0.07667 -2.034706
+## Jul 2000 -0.01113 -0.133531
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Calculando as estatísticas descritivas</h2>
+  </hgroup>
+  <article>
+    <h3>Média anual</h3>
+
+<pre><code class="r">muhat.annual &lt;- apply(returns.monthly.x, 2, mean) * 12
+</code></pre>
+
+<pre><code>##  VALE3  PETR3 
+## 0.2096 0.1584
+</code></pre>
+
+<h3>Desvio padrão anual</h3>
+
+<pre><code class="r">sigma2.annual &lt;- apply(returns.monthly.x, 2, var) * 12
+sigma.annual &lt;- sqrt(sigma2.annual)
+</code></pre>
+
+<pre><code>##  VALE3  PETR3 
+## 0.5412 0.9223
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Calculando as estatísticas descritivas</h2>
+  </hgroup>
+  <article>
+    <h3>Covariância anual</h3>
+
+<pre><code class="r">covmat.annual &lt;- cov(returns.monthly.x) * 12
+covhat.annual &lt;- cov(returns.monthly.x)[1, 2] * 12
+</code></pre>
+
+<pre><code>## [1] 0.07234
+</code></pre>
+
+<h3>Correlação</h3>
+
+<pre><code class="r">rhohat.annual &lt;- cor(returns.monthly.x)[1, 2]
+</code></pre>
+
+<pre><code>## [1] 0.1449
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Calculando as estatísticas descritivas</h2>
+  </hgroup>
+  <article>
+    <p>Para os cálculos da fronteira eficiente vamos separar as variáveis de forma que o sufixo \(i\) é referente a <code>PETR3</code> e o sufixo \(v\) refere-se a <code>VALE3</code>.
+O sufixo \(vi\) relaciona ambas séries temporais.</p>
+
+<pre><code class="r">mu.v = muhat.annual[&quot;VALE3&quot;]
+mu.i = muhat.annual[&quot;PETR3&quot;]
+sig2.v = sigma2.annual[&quot;VALE3&quot;]
+sig2.i = sigma2.annual[&quot;PETR3&quot;]
+sig.v = sigma.annual[&quot;VALE3&quot;]
+sig.i = sigma.annual[&quot;PETR3&quot;]
+sig.vi = covhat.annual
+rho.vi = rhohat.annual
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Criando uma carteira</h2>
+  </hgroup>
+  <article>
+    <p>Dado o retorno esperado da carteira</p>
+
+<p>\[
+\mu_p(x_v, x_i) = x_v \mu_v + x_i \mu_i
+\]</p>
+
+<p>e a sua variância</p>
+
+<p>\[
+\sigma^2_p(x_v, x_i) = \sigma^2_v x_v^2 + \sigma^2_i x_i^2 + 2 x_v x_i \sigma_{vi}
+\]</p>
+
+<p>vamos calculá-los para diferentes combinações de pesos (\(x_v\) e \(x_i\)) sujeitas a restrição \(x_v + x_i = 1\)</p>
+
+<pre><code class="r">x.v = seq(from = -1, to = 2, by = 0.1)  # pesos para VALE3
+x.i = 1 - x.v  # pesos para PETR3
+mu.p = x.v * mu.v + x.i * mu.i  # retorno esperado da carteira
+sig2.p = sig2.v * x.v^2 + sig2.i * x.i^2 + 2 * x.v * x.i * sig.vi
+sig.p = sqrt(sig2.p)  # volatilidade da carteira
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>Fronteira eficiente (2 ativos / long-short)</h2>
+  </hgroup>
+  <article>
+    <p>Destacado em laranja temos os ativos independentes.</p>
+
+<p><img src="figure/unnamed-chunk-14.png" alt="plot of chunk unnamed-chunk-14"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>Calculando a carteira de mínima variância</h2>
+  </hgroup>
+  <article>
+    <p>Para o cálculo da Sharpe-Ratio da carteira de mínima variância é necessário definir uma taxa livre de risco.
+Aqui vamos considerar \(r_f = 7\%\).</p>
+
+<pre><code class="r">r.f = 0.07
+source(&quot;scripts/portfolio.r&quot;)
+gmin.port = globalMin.portfolio(muhat.annual, covmat.annual)
+summary(gmin.port, risk.free = r.f)
+</code></pre>
+
+<pre><code>## Call:
+## globalMin.portfolio(er = muhat.annual, cov.mat = covmat.annual)
+## 
+## Portfolio expected return:     0.1983 
+## Portfolio standard deviation:  0.4942 
+## Portfolio Sharpe Ratio:        0.2595 
+## Portfolio weights:
+##  VALE3  PETR3 
+## 0.7792 0.2208
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Fronteira eficiente (2 ativos / long-short)</h2>
+  </hgroup>
+  <article>
+    <p>Destacado em azul temos a carteira de mínima variância</p>
+
+<p><img src="figure/unnamed-chunk-16.png" alt="plot of chunk unnamed-chunk-16"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+	<hgroup>
+		<h2>Calculando a carteira tangente</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Ao considerarmos um ativo livre de risco como mais uma alternativa de investimento chegamos ao seguinte retorno (\(\mu_N\)) da nova carteira que compõe a carteira com 2 ativos mais o ativo livre de risco</p>
+
+<p>\[
+\mu_N = r_f + x_p (\mu_p - r_f)
+\]</p>
+
+<pre><code class="r">tan.port = tangency.portfolio(muhat.annual, covmat.annual, risk.free = r.f)
+summary(tan.port, risk.free = r.f)
+</code></pre>
+
+<pre><code>## Call:
+## tangency.portfolio(er = muhat.annual, cov.mat = covmat.annual, 
+##     risk.free = r.f)
+## 
+## Portfolio expected return:     0.2033 
+## Portfolio standard deviation:  0.5037 
+## Portfolio Sharpe Ratio:        0.2645 
+## Portfolio weights:
+##  VALE3  PETR3 
+## 0.8767 0.1233
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-12" style="background:;">
+	<hgroup>
+		<h2>Fronteira eficiente (2 ativos / long-short + \(r_f\))</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>O <code>x</code> marca o ponto em que a linha reta saindo da taxa livre de risco <strong>toca</strong> a fronteira eficiente e consequentemente indica a carteira tangente que é a carteira eficiente quando se leva em consideração um ativo livre de risco.</p>
+
+<p><img src="figure/unnamed-chunk-18.png" alt="plot of chunk unnamed-chunk-18"> </p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Carteira de mínima variância <em>long-only</em></h2>
+  </hgroup>
+  <article>
+    <p>Vamos agora calcular a carteira de mínima variância impondo a restrição de não ficar vendido em nenhum ativo (<em>long-only</em>).
+Dado que para 2 ativos, como visto antes, os ativos caem sobre a fronteira, para produzir uma fronteira eficiente com a restrição de <em>long-only</em> é necessário introduzir pelo menos mais um ativo.</p>
+
+<pre><code class="r">filelist &lt;- c(&quot;data/VALE3.monthly.raw.csv&quot;, &quot;data/PETR3.monthly.raw.csv&quot;, 
+    &quot;data/USIM3.monthly.raw.csv&quot;)
+returns.monthly.x &lt;- getReturnsFromYahooFiles(filelist)
+muhat.annual &lt;- apply(returns.monthly.x, 2, mean) * 12
+sigma2.annual &lt;- apply(returns.monthly.x, 2, var) * 12
+sigma.annual &lt;- sqrt(sigma2.annual)
+covmat.annual &lt;- cov(returns.monthly.x) * 12
+covhat.annual &lt;- cov(returns.monthly.x)[1, 2] * 12
+rhohat.annual &lt;- cor(returns.monthly.x)[1, 2]
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>Otimização quadrática</h2>
+  </hgroup>
+  <article>
+    <p>Os problemas de otimização quadrática são descritos como</p>
+
+<p>\[
+\min_x \frac{1}{2}\mathbf{x^\prime D x - d^\prime x}
+\]</p>
+
+<p>Sujeito as restrições</p>
+
+<p>\[
+\mathbf{A^{\prime}}_{neq} \mathbf{x} \ge \mathbf{b}_{neq}
+\]</p>
+
+<p>\[
+\mathbf{A^{\prime}}_{eq} \mathbf{x} = \mathbf{b}_{eq}
+\]</p>
+
+<p>onde condidera-se \(m\) restrições em desigualdades e \(l\) restrições em igualdades.
+As matrizes tem dimensões \(\mathbf{D} \equiv n\times n\),
+\(\mathbf{x} \equiv n\times 1\),
+\(\mathbf{d} \equiv n\times 1\),
+\(\mathbf{A^{\prime}}_{neq} \equiv m\times n\),
+\(\mathbf{b}_{neq} \equiv m\times 1\),
+\(\mathbf{A^{\prime}}_{eq} \equiv l\times n\) e 
+\(\mathbf{b}_{eq} \equiv l\times 1\).</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-15" style="background:;">
+	<hgroup>
+		<h2>Definindo o problema de otimização de carteiras</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Para colocarmos o problema de otimização de carteiras no <em>framework</em> de otimização quadrática temos que</p>
+
+<p>\[
+\mathbf{D} = 2\mathbf{\Sigma}\,\, \mathrm{e} \,\, \mathbf{d} = \mathbf{0}
+\]</p>
+
+<p>o vetor \(x\) é o vetor de pesos onde \(x_i \ge 0\) para \(i = 1,2,\dots,n\), onde \(n\) é a quantidade de ativos presentes na carteira.
+Esta restrição representa uma inequação e deve ser especificada com \(l = n\)</p>
+
+<p>\[
+\mathbf{A^{\prime}}_{neq} = \mathbf{I}_{n},\, \mathbf{b}_{neq} = \mathbf{0}
+\]</p>
+
+<p>temos ainda \(m = 1\) restrição em igualdade, onde \(\mathbf{x^{\prime} 1} = 1\) e deve ser especificada como</p>
+
+<p>\[
+\mathbf{A^{\prime}}_{eq} = \mathbf{1}^\prime,\, \mathbf{b}_{eq} = 1
+\]</p>
+
+<p>O problema pode ainda ser simplificado fazendo</p>
+
+<p>\[
+\mathbf{A^{\prime}} = \left( \begin{array}{c} \mathbf{1}^\prime \\
+\mathbf{I}_n \end{array} \right),\,
+\mathbf{b} = \left( \begin{array}{c} 1 \\
+\mathbf{0} \end{array} \right)
+\]</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Construindo as matrizes</h2>
+  </hgroup>
+  <article>
+    <p>Matriz \(\mathbf{D}\)</p>
+
+<pre><code class="r">D.mat &lt;- 2 * covmat.annual
+</code></pre>
+
+<pre><code>##        VALE3  PETR3  USIM3
+## VALE3 0.5858 0.1447 0.1066
+## PETR3 0.1447 1.7013 0.0894
+## USIM3 0.1066 0.0894 0.6889
+</code></pre>
+
+<p>Vetor \(\mathbf{d}\)</p>
+
+<pre><code class="r">d.vec &lt;- rep(0, 3)
+</code></pre>
+
+<pre><code>## [1] 0 0 0
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Construindo as matrizes</h2>
+  </hgroup>
+  <article>
+    <p>Matriz \(\mathbf{A}\)</p>
+
+<pre><code class="r">A.mat &lt;- cbind(rep(1, 3), diag(3))
+</code></pre>
+
+<pre><code>##      [,1] [,2] [,3] [,4]
+## [1,]    1    1    0    0
+## [2,]    1    0    1    0
+## [3,]    1    0    0    1
+</code></pre>
+
+<p>Vetor \(\mathbf{b}\)</p>
+
+<pre><code class="r">b.vec &lt;- c(1, rep(0, 3))
+</code></pre>
+
+<pre><code>## [1] 1 0 0 0
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-18" style="background:;">
+	<hgroup>
+		<h2>Utilizando <code>solve.QP</code> para minimizar a variância</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Utilizamos a função <code>solve.QP</code> do pacote <code>quadprog</code> para encontrar a solução do problema de otimização.</p>
+
+<pre><code class="r">library(quadprog)
+qp.out &lt;- solve.QP(Dmat = D.mat, dvec = d.vec, Amat = A.mat, bvec = b.vec, 
+    meq = 1)
+</code></pre>
+
+<p>A solução, que são os pesos dos ativos na carteira ficam no atributo <code>solution</code> da saída da função.</p>
+
+<pre><code class="r">qp.out$solution
+</code></pre>
+
+<pre><code>## [1] 0.4665 0.1366 0.3969
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>Calcular a média e a variância da carteira eficiente</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">w.gmin.ns &lt;- qp.out$solution
+names(w.gmin.ns) &lt;- names(muhat.annual)
+er.gmin.ns &lt;- as.numeric(crossprod(w.gmin.ns, muhat.annual))
+var.gmin.ns &lt;- as.numeric(t(w.gmin.ns) %*% covmat.annual %*% w.gmin.ns)
+sigma.gmin.ns &lt;- sqrt(var.gmin.ns)
+c(er.gmin.ns, sigma.gmin.ns)
+</code></pre>
+
+<pre><code>## [1] 0.1845 0.4095
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-20" style="background:;">
+	<hgroup>
+		<h2>Fronteira eficiente (3 ativos / long-only)</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>A linha verde é a fronteira eficiente <em>long-short</em> e a linha em dourada é a fronteira eficiente <em>long-only</em>.</p>
+
+<p><img src="figure/unnamed-chunk-31.png" alt="plot of chunk unnamed-chunk-31"> </p>
+
+	</article>
+</slide>
+      <slide class="thank-you-slide segue nobackground">
+  <article class="flexbox vleft auto-fadein">
+	<h2>Teoria de carteiras de Markowitz</h2>
+	
+  </article>
+  <p class="auto-fadein" data-config-contact>
+    <!-- populated from slide_config.json -->
+  </p>
+</slide>
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

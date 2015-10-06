@@ -1,0 +1,79 @@
+Title:			Estratégias de Trading  
+Subtitle:		  
+Author:			Wilson N. de Freitas  
+Affiliation:	http://aboutwilson.net  
+Date:			October 28, 2012  
+Copyright:		2012 Wilson.  
+				This work is licensed under a Creative Commons License.  
+				http://creativecommons.org/licenses/by-sa/2.5/  
+Keywords:		trading strategies, risk, return, CAPM, trading, time series  
+CSS:			style.css  
+HTML header:	<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4510606-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+[knitr]: https://github.com/yihui/knitr
+[slidify]: http://ramnathv.github.com/slidify/
+
+# Estratégias de Trading 
+
+## Monitor:<br/>Wilson Nascimento de Freitas  
+
+#### Introdução (dez/2012)
+
+O curso de Estratégias de Trading foi oferecido como uma disciplina de tópicos no Mestrado Profissional em Finanças Quantitativas da FGV/EESP.
+Este site contém todo o material referente as aulas de monitoria que foram dadas no laboratório de computação.
+O objetivo aqui é apresentar as ferramentas utilizadas na implementação de estratégias de trading.
+
+O curso foi oferecido em 2011 e novamente em 2012, quando foi decidido utilizar R ao invés de MatLab, devido a vasta biblioteca existente sobre o tema em R.
+Todas as apresentações foram geradas em R utilizando os pacotes [knitr][knitr] e [slidify][slidify].
+
+### Material
+
+- [R intro](slides/r-intro.html): diversos exemplos de comandos em R
+- [Computing Returns](slides/computing-returns.html) [[PDF](pdf/computing-returns.pdf)]: como calcular retornos e gerar gráficos utilizando o funções do pacote `base` do R e os pacotes `quantmod` e `PerformanceAnalytics`
+    - [Acertando as séries do Yahoo! Finance no R](notes/yahoo-series.html) [[PDF](pdf/yahoo-series.pdf)]: como acertar as séries do Yahoo! Finance baixadas em arquivos CSV
+- [Simulando séries temporais lineares](slides/time-series.html) [[PDF](pdf/time-series.pdf)]: simulando processos de séries temporais lineares (AR e MA)
+- [Teoria de carteiras de Markowitz](slides/portfolio-theory.html) [[PDF](pdf/portfolio-theory.pdf)]: cálculo de carteiras de eficientes, teoria de carteiras de Markowitz
+- [Testes de raiz unitária](slides/unit-root-tests.html)[[PDF](pdf/unit-root-tests.pdf)]: utilização dos testes de raiz unitária no pacote `urca` do R
+- [Testes de Cointegração](slides/cointegration-tests.html)[[PDF](pdf/cointegration-tests.pdf)]: como realizar os testes de cointegração no R
+
+
+### Atividades
+
+- [Atividade 1](activities/act1.html) [[PDF](pdf/act1.pdf)]: análise de estatísticas descritiva aplicadas a séries temporais de retornos de preços de ações e índices
+	- [Exemplos de scripts](activities/act1-examples.html) [[PDF](pdf/act1-examples.pdf)]: exemplos de scripts para ajudar na execução da atividade
+- [Primeiros projetos](activities/TopicosFQ-PrimeirosProjetos.pdf)
+    - implementação de VAR
+    - pesquisa sobre causalidade de Granger
+- [Projeto final](activities/ProjetoFinal-PairsTrading.pdf)
+    - dados: [XLS](activities/ProjetoFinalDados.xlsx),  [MATLAB](activities/DadosFinalMatlab.mat)
+
+---
+
+### Links úteis
+
+- [An Introduction to Analysis of Financial Data with R](http://faculty.chicagobooth.edu/ruey.tsay/teaching/introTS/): página para o livro do Ruey Tsay sobre análise de séries temporais financeiras com R
+- [FinTS: Companion to Tsay (2005) Analysis of Financial Time Series](http://cran.r-project.org/web/packages/FinTS/index.html): pacote desenvolvido em R para livro de análise de séries temporais financeiras do Prof. Tsay
+- [Introductory Time Series with R](http://tur-www1.massey.ac.nz/~pscowper/ts/): página do livro sobre séries temporais da coleção [*User R!*](http://www.springer.com/series/6991) da Springer
+- [Time Series Analysis with Applications in R](http://homepage.stat.uiowa.edu/~kchan/TSA.htm): outro site de séries temporais em R com diversos *datasets* e *scripts*
+- [How to Visualize and Compare Distributions](http://flowingdata.com/2012/05/15/how-to-visualize-and-compare-distributions/): link do blog [FlowingData](http://flowingdata.com) sobre como comparar e visualizar distribuições
+
+
+### Links de R
+
+- [CRAN](http://cran.r-project.org/): The Comprehensive R Archive Network, site que centraliza todo boa parte dos pacotes desenvolvidos para R.
+- [PerformanceAnalytics](http://cran.fhcrc.org/web/packages/PerformanceAnalytics/index.html): Econometric tools for performance and risk analysis
+- [quantmod](http://cran.r-project.org/web/packages/quantmod/index.html): functions for quantitative modelling in finance
+- [zoo](http://cran.fhcrc.org/web/packages/zoo/index.html): Z's ordered observations
+- [xts](http://cran.fhcrc.org/web/packages/xts/index.html): Extensible time series
+- [tseries](http://cran.fhcrc.org/web/packages/tseries/index.html): Time series analysis and computational finance
+- [fPortfolio](http://cran.r-project.org/web/packages/fPortfolio/index.html): Portfolio Selection and Optimization
+- [mvtnorm](http://cran.fhcrc.org/web/packages/mvtnorm/index.html): Multivariate normal and multivariate t distribution

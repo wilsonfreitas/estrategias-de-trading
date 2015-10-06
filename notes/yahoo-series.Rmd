@@ -1,0 +1,37 @@
+# Acertando as séries do Yahoo! Finance no R
+
+As séries do Yahoo! Finance são invertidas, vão das datas mais recentes para as mais antigas, de forma que é necessário realizar esta inversão antes de começar a manipula-las para não causar erros no cálculo dos retornos.
+Usualmente esta inversão é realizada no Excel, o que é um desperdício tendo a disposição uma ferramenta como R.
+Vejamos como realizar esta inversão em algumas linhas de código R.
+
+## Carregando a série no R
+
+Baixamos a série de preços mensais da Vale do Rio Doce (VALE5 PNA N1) no arquivo `VALE5.monthly.raw.csv`.
+O arquivo do Yahoo! Finance vem no formato `CSV` separado por vírgulas (`,`), não no formato pt-BR separado por ponto-e-vírgula (`;`).
+
+```{r}
+# carregar o arquivo com as series
+vale5 = read.csv('data/VALE5.monthly.raw.csv', header=TRUE, stringsAsFactors=FALSE)
+str(vale5)
+head(vale5)
+```
+
+Como podemos observar a série do Yahoo! começa com as datas mais recentes.
+Ainda é possível notar que a coluna `Date` vem com tipo `chr`, ou seja, é uma *string* com formato de data.
+Vamos converter esta coluna para o tipo `Date`.
+
+```{r}
+# converter para o tipo *Date*
+vale5$Date = as.Date(vale5$Date)
+str(vale5)
+head(vale5)
+```
+
+Para enfim ordenar pelas datas de forma ascendente.
+
+```{r}
+# colocar a serie na ordem correta -- data crescente
+vale5 = vale5[order(vale5$Date),]
+head(vale5)
+```
+Temos portanto um `data.frame` com as séries temporais ordenadas da forma adequada para o cálculo dos retornos.

@@ -1,0 +1,535 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Demo 1: Cointegration</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-04-13"><meta name="DC.source" content="Demo1_CIWebinar.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Demo 1: Cointegration</h1><!--introduction--><p>Demo from the April 14, 2011 webinar titled "Cointegration and Pairs Trading with Econometrics Toolbox."</p><p>See also <a href="Demo2_Pairs_Trading.html">Demo 2</a></p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">Interest Rate Data</a></li><li><a href="#3">Pretest for the Order of Integration</a></li><li><a href="#4">Engle-Granger Test for Cointegration</a></li><li><a href="#5">Identify the Cointegrating Relation</a></li><li><a href="#6">VEC Model Estimation, Simulation, Forecasting</a></li><li><a href="#7">Multiple Cointegrating Relations</a></li><li><a href="#8">Johansen Test for Cointegration</a></li><li><a href="#9">VEC Model Estimation</a></li><li><a href="#10">Testing Cointegrating Vectors</a></li></ul></div><pre> Copyright 2011, The MathWorks, Inc.
+ All rights reserved.</pre><pre class="codeinput">clear; close <span class="string">all</span>; clc
+</pre><h2>Interest Rate Data<a name="2"></a></h2><pre class="codeinput">load <span class="string">Data_Canada</span>
+Y = Data(:,3:end);
+
+figure
+plot(dates,Y,<span class="string">'LineWidth'</span>,2)
+xlabel(<span class="string">'Year'</span>)
+ylabel(<span class="string">'Percent'</span>)
+names = series(3:end);
+legend(names,<span class="string">'location'</span>,<span class="string">'NW'</span>)
+title(<span class="string">'{\bf Canadian Interest Rates, 1954-1994}'</span>)
+axis <span class="string">tight</span>
+grid <span class="string">on</span>
+</pre><img vspace="5" hspace="5" src="Demo1_CIWebinar_01.png" alt=""> <h2>Pretest for the Order of Integration<a name="3"></a></h2><pre class="codeinput">y1 = Y(:,1); <span class="comment">% Short-term rate</span>
+
+<span class="comment">% Levels data:</span>
+fprintf(<span class="string">'=== Test y1 for a unit root ===\n\n'</span>)
+[h1,pVal1] = adftest(y1,<span class="string">'model'</span>,<span class="string">'ARD'</span>) <span class="comment">% Left-tail probability</span>
+
+fprintf(<span class="string">'\n=== Test y1 for stationarity ===\n\n'</span>)
+[h0,pVal0] = kpsstest(y1,<span class="string">'trend'</span>,false) <span class="comment">% Right-tail probability</span>
+
+<span class="comment">% Differenced data:</span>
+fprintf(<span class="string">'\n=== Test (1-L)y1 for a unit root ===\n\n'</span>)
+[h1D,pVal1D] = adftest(diff(y1),<span class="string">'model'</span>,<span class="string">'ARD'</span>) <span class="comment">% Left-tail probability</span>
+
+fprintf(<span class="string">'\n=== Test (1-L)y1 for stationarity ===\n\n'</span>)
+[h0D,pVal0D] = kpsstest(diff(y1),<span class="string">'trend'</span>,false) <span class="comment">% Right-tail probability</span>
+
+figure
+plot(dates(2:end),diff(Y),<span class="string">'LineWidth'</span>,2)
+names = series(3:end);
+legend(names,<span class="string">'location'</span>,<span class="string">'NW'</span>)
+title(<span class="string">'{\bf Differenced Data}'</span>)
+axis <span class="string">tight</span>
+grid <span class="string">on</span>
+</pre><pre class="codeoutput">=== Test y1 for a unit root ===
+
+
+h1 =
+
+     0
+
+
+pVal1 =
+
+    0.2867
+
+
+=== Test y1 for stationarity ===
+
+Warning: Test statistic #1 above tabulated critical values:
+minimum p-value = 0.010 reported. 
+
+h0 =
+
+     1
+
+
+pVal0 =
+
+    0.0100
+
+
+=== Test (1-L)y1 for a unit root ===
+
+Warning: Test statistic #1 below tabulated critical values:
+minimum p-value = 0.001 reported. 
+
+h1D =
+
+     1
+
+
+pVal1D =
+
+  1.0000e-003
+
+
+=== Test (1-L)y1 for stationarity ===
+
+Warning: Test statistic #1 below tabulated critical values:
+maximum p-value = 0.100 reported. 
+
+h0D =
+
+     0
+
+
+pVal0D =
+
+    0.1000
+
+</pre><img vspace="5" hspace="5" src="Demo1_CIWebinar_02.png" alt=""> <h2>Engle-Granger Test for Cointegration<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Run the test with both "tau" (t1) and "z" (t2) statistics:</span>
+fprintf(<span class="string">'\n=== Engle-Granger tests for cointegration ===\n\n'</span>)
+[hEG,pValEG] = egcitest(Y,<span class="string">'test'</span>,{<span class="string">'t1'</span>,<span class="string">'t2'</span>})
+</pre><pre class="codeoutput">
+=== Engle-Granger tests for cointegration ===
+
+
+hEG =
+
+     0     1
+
+
+pValEG =
+
+    0.0526    0.0202
+
+</pre><h2>Identify the Cointegrating Relation<a name="5"></a></h2><pre class="codeinput"><span class="comment">% Return the results of the cointegrating regression:</span>
+[~,~,~,~,reg] = egcitest(Y,<span class="string">'test'</span>,<span class="string">'t2'</span>);
+
+c0 = reg.coeff(1);
+b = reg.coeff(2:3);
+figure
+C = get(gca,<span class="string">'ColorOrder'</span>);
+set(gca,<span class="string">'NextPlot'</span>,<span class="string">'ReplaceChildren'</span>,<span class="string">'ColorOrder'</span>,circshift(C,3))
+plot(dates,Y*[1;-b]-c0,<span class="string">'LineWidth'</span>,2)
+title(<span class="string">'{\bf Cointegrating Relation}'</span>)
+axis <span class="string">tight</span>
+grid <span class="string">on</span>
+</pre><img vspace="5" hspace="5" src="Demo1_CIWebinar_03.png" alt=""> <h2>VEC Model Estimation, Simulation, Forecasting<a name="6"></a></h2><pre class="codeinput"><span class="comment">% See Documentation:</span>
+<span class="comment">%</span>
+<span class="comment">%   Econometrics Toolbox\User's Guide</span>
+<span class="comment">%   \Mulivariate Time Series Models</span>
+<span class="comment">%   \Cointegration and Error Correction</span>
+<span class="comment">%   \Identifying Single Cointegrating Relations</span>
+<span class="comment">%   \Estimating VEC Model Parameters</span>
+</pre><h2>Multiple Cointegrating Relations<a name="7"></a></h2><pre class="codeinput"><span class="comment">% Permutations of the data variables:</span>
+P0 = perms([1 2 3]);
+[~,idx] = unique(P0(:,1)); <span class="comment">% Rows of P0 with unique regressand y1</span>
+P = P0(idx,:); <span class="comment">% Unique regressions</span>
+numPerms = size(P,1);
+
+<span class="comment">% Preallocate:</span>
+T0 = size(Y,1);
+HEG = zeros(1,numPerms);
+PValEG = zeros(1,numPerms);
+CIR = zeros(T0,numPerms);
+
+<span class="comment">% Run all tests:</span>
+<span class="keyword">for</span> i = 1:numPerms
+
+    YPerm = Y(:,P(i,:));
+    [h,pVal,~,~,reg] = egcitest(YPerm,<span class="string">'test'</span>,<span class="string">'t2'</span>);
+    HEG(i) = h;
+    PValEG(i) = pVal;
+    c0i = reg.coeff(1);
+    bi = reg.coeff(2:3);
+    CIR(:,i) = YPerm*[1;-bi]-c0i;
+
+<span class="keyword">end</span>
+
+fprintf(<span class="string">'\n=== Different Engle-Granger tests, same data ===\n\n'</span>)
+HEG,PValEG
+
+<span class="comment">% Plot the cointegrating relations:</span>
+figure
+C = get(gca,<span class="string">'ColorOrder'</span>);
+set(gca,<span class="string">'NextPlot'</span>,<span class="string">'ReplaceChildren'</span>,<span class="string">'ColorOrder'</span>,circshift(C,3))
+plot(dates,CIR,<span class="string">'LineWidth'</span>,2)
+title(<span class="string">'{\bf Multiple Cointegrating Relations}'</span>)
+legend(strcat({<span class="string">'Cointegrating relation  '</span>}, <span class="keyword">...</span>
+     num2str((1:numPerms)')),<span class="string">'location'</span>,<span class="string">'NW'</span>);
+axis <span class="string">tight</span>
+grid <span class="string">on</span>
+</pre><pre class="codeoutput">
+=== Different Engle-Granger tests, same data ===
+
+
+HEG =
+
+     1     1     0
+
+
+PValEG =
+
+    0.0202    0.0290    0.0625
+
+</pre><img vspace="5" hspace="5" src="Demo1_CIWebinar_04.png" alt=""> <h2>Johansen Test for Cointegration<a name="8"></a></h2><pre class="codeinput">fprintf(<span class="string">'\n=== Johansen tests for cointegration ===\n'</span>)
+[hJ,pValJ] = jcitest(Y,<span class="string">'model'</span>,<span class="string">'H1'</span>,<span class="string">'lags'</span>,1:2);
+</pre><pre class="codeoutput">
+=== Johansen tests for cointegration ===
+
+************************
+Results Summary (Test 1)
+
+Data: Y
+Effective sample size: 39
+Model: H1
+Lags: 1
+Statistic: trace
+Significance level: 0.05
+
+r  h  stat      cValue   pValue   eigVal   
+========================================
+0  1  35.3442   29.7976  0.0104   0.3979  
+1  1  15.5568   15.4948  0.0490   0.2757  
+2  0  2.9796    3.8415   0.0843   0.0736  
+
+************************
+Results Summary (Test 2)
+
+Data: Y
+Effective sample size: 38
+Model: H1
+Lags: 2
+Statistic: trace
+Significance level: 0.05
+
+r  h  stat      cValue   pValue   eigVal   
+========================================
+0  0  25.8188   29.7976  0.1346   0.2839  
+1  0  13.1267   15.4948  0.1109   0.2377  
+2  0  2.8108    3.8415   0.0937   0.0713  
+</pre><h2>VEC Model Estimation<a name="9"></a></h2><pre class="codeinput">[~,~,~,~,mles] = jcitest(Y,<span class="string">'model'</span>,<span class="string">'H1'</span>,<span class="string">'lags'</span>,2,<span class="string">'display'</span>,<span class="string">'params'</span>);
+
+B = mles.r2.paramVals.B <span class="comment">% Cointegrating relations with rank = 2 restriction</span>
+</pre><pre class="codeoutput">
+****************************
+Parameter Estimates (Test 1)
+
+r = 0
+------
+B1 =
+   -0.1848    0.5704   -0.3273
+    0.0305    0.3143   -0.3448
+    0.0964    0.1485   -0.1406
+
+B2 =
+   -0.6046    1.6615   -1.3922
+   -0.1729    0.4501   -0.4796
+   -0.1631    0.5759   -0.5231
+
+c1 =
+    0.1420
+    0.1517
+    0.1508
+
+
+r = 1
+------
+A =
+   -0.6259
+   -0.2261
+   -0.0222
+
+B =
+    0.7081
+    1.6282
+   -2.4581
+
+B1 =
+    0.0579    1.0824   -0.8718
+    0.1182    0.4993   -0.5415
+    0.1050    0.1667   -0.1600
+
+B2 =
+   -0.5462    2.2436   -1.7723
+   -0.1518    0.6605   -0.6169
+   -0.1610    0.5966   -0.5366
+
+c0 =
+    2.2351
+
+c1 =
+   -0.0366
+    0.0872
+    0.1444
+
+
+r = 2
+------
+A =
+   -0.6259    0.1379
+   -0.2261   -0.0480
+   -0.0222    0.0137
+
+B =
+    0.7081   -2.4407
+    1.6282    6.2883
+   -2.4581   -3.5321
+
+B1 =
+    0.2438    0.6395   -0.6729
+    0.0535    0.6533   -0.6107
+    0.1234    0.1228   -0.1403
+
+B2 =
+   -0.3857    1.7970   -1.4915
+   -0.2076    0.8158   -0.7146
+   -0.1451    0.5524   -0.5089
+
+c0 =
+    2.0901
+   -3.0289
+
+c1 =
+   -0.0104
+    0.0137
+    0.1528
+
+
+B =
+
+    0.7081   -2.4407
+    1.6282    6.2883
+   -2.4581   -3.5321
+
+</pre><h2>Testing Cointegrating Vectors<a name="10"></a></h2><pre class="codeinput">fprintf(<span class="string">'\n=== Test y1, y2,y3 for stationarity ===\n\n'</span>)
+[h0J,pVal0J] = jcontest(Y,1,<span class="string">'BVec'</span>,{[1 0 0]',[0 1 0]',[0 0 1]'})
+</pre><pre class="codeoutput">
+=== Test y1, y2,y3 for stationarity ===
+
+
+h0J =
+
+     1     1     1
+
+
+pVal0J =
+
+  1.0e-003 *
+
+    0.3368    0.1758    0.1310
+
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Demo 1: Cointegration
+% Demo from the April 14, 2011 webinar titled "Cointegration and
+% Pairs Trading with Econometrics Toolbox."
+%
+% See also <Demo2_Pairs_Trading.html Demo 2>
+
+%%
+%   Copyright 2011, The MathWorks, Inc.
+%   All rights reserved.
+clear; close all; clc
+
+%% Interest Rate Data
+
+load Data_Canada
+Y = Data(:,3:end);
+
+figure
+plot(dates,Y,'LineWidth',2)
+xlabel('Year')
+ylabel('Percent')
+names = series(3:end);
+legend(names,'location','NW')
+title('{\bf Canadian Interest Rates, 1954-1994}')
+axis tight
+grid on
+
+%% Pretest for the Order of Integration
+
+y1 = Y(:,1); % Short-term rate
+
+% Levels data:
+fprintf('=== Test y1 for a unit root ===\n\n')
+[h1,pVal1] = adftest(y1,'model','ARD') % Left-tail probability
+
+fprintf('\n=== Test y1 for stationarity ===\n\n')
+[h0,pVal0] = kpsstest(y1,'trend',false) % Right-tail probability
+
+% Differenced data:
+fprintf('\n=== Test (1-L)y1 for a unit root ===\n\n')
+[h1D,pVal1D] = adftest(diff(y1),'model','ARD') % Left-tail probability
+
+fprintf('\n=== Test (1-L)y1 for stationarity ===\n\n')
+[h0D,pVal0D] = kpsstest(diff(y1),'trend',false) % Right-tail probability
+
+figure
+plot(dates(2:end),diff(Y),'LineWidth',2)
+names = series(3:end);
+legend(names,'location','NW')
+title('{\bf Differenced Data}')
+axis tight
+grid on
+
+%% Engle-Granger Test for Cointegration
+
+% Run the test with both "tau" (t1) and "z" (t2) statistics:
+fprintf('\n=== Engle-Granger tests for cointegration ===\n\n')
+[hEG,pValEG] = egcitest(Y,'test',{'t1','t2'})
+
+%% Identify the Cointegrating Relation
+
+% Return the results of the cointegrating regression:
+[~,~,~,~,reg] = egcitest(Y,'test','t2');
+ 
+c0 = reg.coeff(1);
+b = reg.coeff(2:3);
+figure
+C = get(gca,'ColorOrder');
+set(gca,'NextPlot','ReplaceChildren','ColorOrder',circshift(C,3))
+plot(dates,Y*[1;-b]-c0,'LineWidth',2)
+title('{\bf Cointegrating Relation}')
+axis tight
+grid on
+
+%% VEC Model Estimation, Simulation, Forecasting
+
+% See Documentation:
+%
+%   Econometrics Toolbox\User's Guide
+%   \Mulivariate Time Series Models
+%   \Cointegration and Error Correction
+%   \Identifying Single Cointegrating Relations
+%   \Estimating VEC Model Parameters
+
+%% Multiple Cointegrating Relations
+
+% Permutations of the data variables:
+P0 = perms([1 2 3]);
+[~,idx] = unique(P0(:,1)); % Rows of P0 with unique regressand y1
+P = P0(idx,:); % Unique regressions
+numPerms = size(P,1);
+ 
+% Preallocate:
+T0 = size(Y,1);
+HEG = zeros(1,numPerms);
+PValEG = zeros(1,numPerms);
+CIR = zeros(T0,numPerms);
+ 
+% Run all tests:
+for i = 1:numPerms
+    
+    YPerm = Y(:,P(i,:));
+    [h,pVal,~,~,reg] = egcitest(YPerm,'test','t2');
+    HEG(i) = h;
+    PValEG(i) = pVal;
+    c0i = reg.coeff(1);
+    bi = reg.coeff(2:3);
+    CIR(:,i) = YPerm*[1;-bi]-c0i;
+    
+end
+
+fprintf('\n=== Different Engle-Granger tests, same data ===\n\n')
+HEG,PValEG
+
+% Plot the cointegrating relations:
+figure
+C = get(gca,'ColorOrder');
+set(gca,'NextPlot','ReplaceChildren','ColorOrder',circshift(C,3))
+plot(dates,CIR,'LineWidth',2)
+title('{\bf Multiple Cointegrating Relations}')
+legend(strcat({'Cointegrating relation  '}, ...
+     num2str((1:numPerms)')),'location','NW');
+axis tight
+grid on
+
+%% Johansen Test for Cointegration
+
+fprintf('\n=== Johansen tests for cointegration ===\n')
+[hJ,pValJ] = jcitest(Y,'model','H1','lags',1:2);
+
+%% VEC Model Estimation
+
+[~,~,~,~,mles] = jcitest(Y,'model','H1','lags',2,'display','params');
+
+B = mles.r2.paramVals.B % Cointegrating relations with rank = 2 restriction
+
+%% Testing Cointegrating Vectors
+
+fprintf('\n=== Test y1, y2,y3 for stationarity ===\n\n') 
+[h0J,pVal0J] = jcontest(Y,1,'BVec',{[1 0 0]',[0 1 0]',[0 0 1]'})
+##### SOURCE END #####
+--></body></html>

@@ -4,12 +4,12 @@ library(PerformanceAnalytics)
 library(zoo)
 ```
 
-# Atividade 1 - Análise estatística
+# Atividade 1 - AnÃ¡lise estatÃ­stica
 
 ## Carregando os arquivos do Yahoo! Finance
 
-Vamos carregar as séries de preços de fechamento ajustados de ambas as séries em uma única estrutura de dados de séries temporais chamada `act1Prices.z`.
-Note que utilizamos o pacote `zoo`, logo é necessário tê-lo carregado previamente.
+Vamos carregar as sÃ©ries de preÃ§os de fechamento ajustados de ambas as sÃ©ries em uma Ãºnica estrutura de dados de sÃ©ries temporais chamada `act1Prices.z`.
+Note que utilizamos o pacote `zoo`, logo Ã© necessÃ¡rio tÃª-lo carregado previamente.
 
 ```{r}
 # SP500
@@ -40,7 +40,7 @@ act1Returns.z <- diff(log(act1Prices.z))
 plot(act1Returns.z, col="red", lwd=2, main="Daily cc returns")
 ```
 
-Bem, calculados os retornos, vamos dividir as séries em 4 partes iguais.
+Bem, calculados os retornos, vamos dividir as sÃ©ries em 4 partes iguais.
 
 ```{r}
 # Quantidade de linhas
@@ -62,9 +62,9 @@ plot(act1partsReturns.z, col="red", lwd=1, main="Daily cc returns")
 
 
 
-## Estatísticas em retornos simples
+## EstatÃ­sticas em retornos simples
 
-Infelizmente uma coisa *tricky*, as funções do core do R não funcionam adequadamente com objetos `zoo` de séries temporais, logo, devemos fazer uma cópia do objeto em forma de matriz.
+Infelizmente uma coisa *tricky*, as funÃ§Ãµes do core do R nÃ£o funcionam adequadamente com objetos `zoo` de sÃ©ries temporais, logo, devemos fazer uma cÃ³pia do objeto em forma de matriz.
 
 ```{r}
 # Serie completa
@@ -76,7 +76,7 @@ head(ret.mat)
 retparts.mat <- coredata(act1partsReturns.z)
 ```
 
-Note que a estrutura de ordenação e colunas é mantida.
+Note que a estrutura de ordenaÃ§Ã£o e colunas Ã© mantida.
 
 ```{r}
 # Estatisticas para as series completas
@@ -119,7 +119,7 @@ boxplot(ret.mat[,1], ret.mat[,2], names=c("SP500","IBM"), outchar=TRUE, col="sla
 
 ## Assimetria e kurtose
 
-As funções *skewness* e *kurtose* pertencem ao pacote `PerformanceAnalytics`.
+As funÃ§Ãµes *skewness* e *kurtose* pertencem ao pacote `PerformanceAnalytics`.
 
 ```{r}
 # Estatisticas para as series completas

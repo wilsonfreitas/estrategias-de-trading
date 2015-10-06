@@ -1,0 +1,35 @@
+```{r setup, include=FALSE}
+options(digits=6, width=110)
+```
+
+# quantmod
+
+O pacote `quantmod` possui uma série de funcionalidades relacionadas ao tratamento de dados e visualização de séries temporais de dados financeiros.
+Vamos ver aqui como calcular os indicadores de análise técnica neste pacote e para isso vamos trabalhar com a série temporal `VALE3` negociada na BOVESPA.
+
+```{r}
+library(quantmod)
+
+getSymbols("VALE3.SA")
+head(VALE3.SA)
+```
+
+```{r, fig.width=14}
+chartSeries(VALE3.SA["2012"])
+candleChart(VALE3.SA["2012"], multi.col=TRUE, theme='white') 
+barChart(VALE3.SA,theme='white.mono',bar.type='hlc', subset='2012') 
+lineChart(VALE3.SA,line.type='h',TA=NULL, subset='2012')
+
+candleChart(VALE3.SA, theme='white', type='candles')
+reChart(major.ticks='months', subset='first 16 weeks')
+#SMA(VALE3.SA[,"Close"])
+```
+
+# Indicadores de análise técnica
+
+```{r, fig.width=14}
+chartSeries(last(VALE3.SA, "6 months"))
+addMomentum() #add volume 
+addBBands() #add Bollinger Bands 
+addCCI() #add Commodity Channel Index
+```

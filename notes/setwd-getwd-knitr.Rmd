@@ -1,0 +1,24 @@
+## Other approaches for creating time series objects
+
+Instead of ordering `data.frame` object by its rownames we could simply use `xts` *constructor* to build time series objects from Yahoo! Finance CSV files.
+
+```{r, messages=FALSE}
+library(xts)
+setwd('data')
+getwd()
+vale5 <- read.csv('VALE5.monthly.raw.csv', header=TRUE, stringsAsFactors=FALSE, row.names=1)
+```
+
+```{r}
+getwd()
+str(vale5)
+head(vale5)
+tail(vale5)
+```
+
+```{r}
+as.yearmon(rownames(vale5), format="%Y-%m-%d")
+vale5.ts <- as.xts(vale5, order.by=as.yearmon(rownames(vale5), format="%Y-%m-%d"))
+head(vale5.ts)
+tail(vale5.ts)
+```

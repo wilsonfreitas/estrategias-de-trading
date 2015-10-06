@@ -1,0 +1,154 @@
+---
+
+title       : R intro  
+subtitle    : deeply based on vignette source 'RIntro.Rnw'  
+author      : Wilson Freitas  
+job         : Quant  
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}  
+highlighter : highlight.js  # {highlight.js, prettify, highlight}  
+hitheme     : tomorrow      #   
+widgets     : []            # {mathjax, quiz, bootstrap}  
+mode        : selfcontained # {standalone, draft, selfcontained}  
+
+---
+
+## Define where you are about to work
+
+```{r, prompt=TRUE, echo=-1}
+setwd("/Users/wilson")
+getwd()
+setwd("/Users/wilson/Google Drive/dev/trading-strategies/slides")
+getwd()
+```
+
+---
+
+## Creating `numeric` variables
+
+```{r, prompt=TRUE}
+y <- 5 # y = 5 also work but <- is R stylish
+y
+class(y)
+```
+
+---
+
+## Creating `numeric` vectors
+
+```{r, prompt=TRUE}
+x <- c(3.1416,2.7183, 1, 3)
+x
+x[2] # indexing
+class(x)
+```
+
+---
+
+## Creating `matrix` variables
+
+```{r, prompt=TRUE}
+m <- matrix(c(1,2,3,4,5,6,7,8,9), nrow=3)
+m
+class(m)
+```
+
+---
+
+## Creating `data.frame` variables
+
+```{r, prompt=TRUE}
+tab <- data.frame(store=c("downtown","eastside","airport"), sales=c(32,17,24))
+tab
+class(tab)
+```
+
+---
+
+## Creating string vectors (`character` type)
+
+```{r}
+cities <- c("Seattle","Portland","San Francisco")
+cities
+class(cities)
+```
+
+
+---
+
+## Checking who is out there
+
+```{r, prompt=TRUE}
+ls() # list variables in workspace (memory)
+# cleaning up memory
+rm(list=ls())
+ls()
+```
+
+---
+
+## vectorized operations
+
+```{r prompt=TRUE}
+constants <- c(3.1416, 2.7183, 1.4142, 1.6180)
+names(constants) <- c("pi", "euler", "sqrt2", "golden") # naming vector elements
+constants
+constants^2 # squaring all elements
+```
+
+--- &smaller
+
+## vector indexing
+
+```{r prompt=TRUE}
+c(constants[c(1,3,4)],
+constants[c(-1,-2)])
+constants[c("pi","golden")]
+constants > 2
+constants[constants > 2]
+```
+
+--- &smaller
+
+## recycling rule
+
+```{r prompt=TRUE}
+constants
+constants*2
+constants*c(0,1)
+constants*c(0,1,2)
+```
+
+--- &smaller
+
+## sequences
+
+```{r prompt=TRUE}
+1:5
+-5:5
+seq(from=0,to=1,len=5)
+seq(from=0,to=20,by=2.5)
+```
+
+--- &smaller
+
+## sequences
+
+```{r prompt=TRUE}
+seq(0,10,2)
+seq(by=2,0,10)
+seq(0,10,len=5)
+seq(0,10)
+```
+
+--- &smaller
+
+## `rep` function
+
+```{r prompt=TRUE}
+rep(0,10)   # initialize a vector
+rep(1:4, 2) # repeat pattern 2 times
+rep(1:4, each = 2)  # repeat each element 2 times
+rep(1:4, c(2,1,2,1))
+rep(1:4, each = 2, len = 10)   # 8 integers plus two recycled 1's.
+rep(1:4, each = 2, times = 3)  # length 24, 3 complete replications
+```

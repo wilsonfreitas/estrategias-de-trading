@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Computing Returns</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Computing Returns">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Computing Returns</h1>
+        <h2></h2>
+		<p data-config-presenter>
+        <!-- <p>Wilson Freitas<br/>Quant</p> -->
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>download resources</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><a href="data/PETR4.SA.csv">PETR4.SA.csv</a> file</li>
+<li><a href="index.Rmd">index.Rmd</a> source file</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>loading time series into data.frame</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.df = read.csv(file = &quot;data/PETR4.SA.csv&quot;, header = TRUE, stringsAsFactors = FALSE)
+class(petr4.df)
+</code></pre>
+
+<pre><code>## [1] &quot;data.frame&quot;
+</code></pre>
+
+<pre><code class="r">str(petr4.df)
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    142 obs. of  7 variables:
+##  $ Date     : chr  &quot;2001-01-03&quot; &quot;2001-02-01&quot; &quot;2001-03-01&quot; &quot;2001-04-02&quot; ...
+##  $ Open     : num  5.89 6.81 6.87 5.62 6.75 7.47 6.74 6.78 6.84 6.35 ...
+##  $ High     : num  7.04 7.35 7.22 6.82 7.56 7.86 6.85 7.12 7.38 6.91 ...
+##  $ Low      : num  5.82 6.62 5.7 5.57 6.62 6.49 6.25 6.43 6 6.01 ...
+##  $ Close    : num  6.81 6.86 5.87 6.68 7.47 6.75 6.78 6.88 6.41 6.49 ...
+##  $ Volume   : int  41736900 30358200 37962600 34395000 27670200 30358800 38772600 28004400 40997500 33448400 ...
+##  $ Adj.Close: num  0.69 0.69 0.59 0.67 0.75 0.68 0.68 0.69 0.65 0.66 ...
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>data.frame <code>head</code></h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">head(petr4.df)
+</code></pre>
+
+<pre><code>##         Date Open High  Low Close   Volume Adj.Close
+## 1 2001-01-03 5.89 7.04 5.82  6.81 41736900      0.69
+## 2 2001-02-01 6.81 7.35 6.62  6.86 30358200      0.69
+## 3 2001-03-01 6.87 7.22 5.70  5.87 37962600      0.59
+## 4 2001-04-02 5.62 6.82 5.57  6.68 34395000      0.67
+## 5 2001-05-03 6.75 7.56 6.62  7.47 27670200      0.75
+## 6 2001-06-01 7.47 7.86 6.49  6.75 30358800      0.68
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>data.frame <code>tail</code></h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">tail(petr4.df)
+</code></pre>
+
+<pre><code>##           Date  Open  High   Low Close   Volume Adj.Close
+## 137 2012-05-02 21.26 22.25 18.08 19.13 27983000     19.13
+## 138 2012-06-01 18.53 20.15 17.42 18.25 30203300     18.25
+## 139 2012-07-02 18.10 20.31 17.97 19.50 26911600     19.50
+## 140 2012-08-01 19.50 21.88 18.83 20.75 25709700     20.75
+## 141 2012-09-03 20.77 23.84 20.28 22.37 23399800     22.37
+## 142 2012-10-01 22.33 23.10 22.02 22.25 21491800     22.25
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>data.frame properties</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">colnames(petr4.df)
+</code></pre>
+
+<pre><code>## [1] &quot;Date&quot;      &quot;Open&quot;      &quot;High&quot;      &quot;Low&quot;       &quot;Close&quot;     &quot;Volume&quot;   
+## [7] &quot;Adj.Close&quot;
+</code></pre>
+
+<pre><code class="r">class(petr4.df$Date)
+</code></pre>
+
+<pre><code>## [1] &quot;character&quot;
+</code></pre>
+
+<pre><code class="r">class(petr4.df$Adj.Close)
+</code></pre>
+
+<pre><code>## [1] &quot;numeric&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>indexing data.frame - always returns a vector</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.df[1:5, &quot;Adj.Close&quot;]  # using column name
+</code></pre>
+
+<pre><code>## [1] 0.69 0.69 0.59 0.67 0.75
+</code></pre>
+
+<pre><code class="r">petr4.df[1:5, 7]  # using column index
+</code></pre>
+
+<pre><code>## [1] 0.69 0.69 0.59 0.67 0.75
+</code></pre>
+
+<pre><code class="r">petr4.df$Adj.Close[1:5]  # using attribite reffering to column
+</code></pre>
+
+<pre><code>## [1] 0.69 0.69 0.59 0.67 0.75
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2><code>drop=FALSE</code> keeps data.frame structure</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.df[1:5, &quot;Adj.Close&quot;, drop = FALSE]
+</code></pre>
+
+<pre><code>##   Adj.Close
+## 1      0.69
+## 2      0.69
+## 3      0.59
+## 4      0.67
+## 5      0.75
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>extracting data.frame subsets isn&#39;t easy</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">c(which(petr4.df$Date == &quot;2010-01-04&quot;), which(petr4.df == &quot;2010-07-01&quot;))
+</code></pre>
+
+<pre><code>## [1] 109 115
+</code></pre>
+
+<pre><code class="r">petr4.df[which(petr4.df == &quot;2010-01-04&quot;):which(petr4.df == &quot;2010-07-01&quot;), ]
+</code></pre>
+
+<pre><code>##           Date  Open  High   Low Close   Volume Adj.Close
+## 109 2010-01-04 36.95 37.50 33.51 34.17 19068700     33.45
+## 110 2010-02-01 34.29 34.89 30.72 34.61 19589300     33.88
+## 111 2010-03-01 34.82 37.48 34.12 35.39 21152500     34.64
+## 112 2010-04-01 35.66 36.41 31.90 32.80 20999100     32.11
+## 113 2010-05-03 32.55 32.63 26.00 29.60 23845800     29.16
+## 114 2010-06-01 29.00 30.38 26.71 26.86 17958000     26.46
+## 115 2010-07-01 27.11 28.28 26.31 27.85 12439600     27.43
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>defining rownames</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4Prices.df = petr4.df[, &quot;Adj.Close&quot;, drop = FALSE]
+rownames(petr4Prices.df) = petr4.df$Date
+head(petr4Prices.df)
+</code></pre>
+
+<pre><code>##            Adj.Close
+## 2001-01-03      0.69
+## 2001-02-01      0.69
+## 2001-03-01      0.59
+## 2001-04-02      0.67
+## 2001-05-03      0.75
+## 2001-06-01      0.68
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>indexing by rownames</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4Prices.df[&quot;2010-01-04&quot;, 1]
+</code></pre>
+
+<pre><code>## [1] 33.45
+</code></pre>
+
+<pre><code class="r">petr4Prices.df[&quot;2010-01-04&quot;, 1, drop = FALSE]
+</code></pre>
+
+<pre><code>##            Adj.Close
+## 2010-01-04     33.45
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>plotting data</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(petr4.df$Adj.Close)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-10.png" alt="plot of chunk unnamed-chunk-10"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(petr4.df$Adj.Close, type = &quot;l&quot;, col = &quot;blue&quot;, lwd = 2, ylab = &quot;Adjusted close&quot;, 
+    main = &quot;Monthly closing price of PETR4&quot;)
+legend(x = &quot;topleft&quot;, legend = &quot;PETR4&quot;, lty = 1, lwd = 2, col = &quot;blue&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-11.png" alt="plot of chunk unnamed-chunk-11"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>simple returns</h2>
+  </hgroup>
+  <article>
+    <p>\[
+R_t = \frac{P_t - P_{t-1}}{P_{t-1}}
+\]</p>
+
+<pre><code class="r">n = nrow(petr4Prices.df)  # number of rows
+petr4.ret = (petr4Prices.df[2:n, 1] - petr4Prices.df[1:(n - 1), 1])/petr4Prices.df[1:(n - 
+    1), 1]
+head(petr4.ret)
+</code></pre>
+
+<pre><code>## [1]  0.00000 -0.14493  0.13559  0.11940 -0.09333  0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h3><code>petr4.ret</code> is not a data.frame object</h3>
+  </hgroup>
+  <article>
+    <pre><code class="r">class(petr4.ret)
+</code></pre>
+
+<pre><code>## [1] &quot;numeric&quot;
+</code></pre>
+
+<pre><code class="r">names(petr4.ret) = rownames(petr4Prices.df)[2:n]  # adding names to a vector
+head(petr4.ret)
+</code></pre>
+
+<pre><code>## 2001-02-01 2001-03-01 2001-04-02 2001-05-03 2001-06-01 2001-07-02 
+##    0.00000   -0.14493    0.13559    0.11940   -0.09333    0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h3>simple returns as data.frame objects - use <code>drop=FALSE</code></h3>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.ret.df = (petr4Prices.df[2:n, 1, drop = FALSE] - petr4Prices.df[1:(n - 1), 
+    1, drop = FALSE])/petr4Prices.df[1:(n - 1), 1, drop = FALSE]
+head(petr4.ret.df)
+</code></pre>
+
+<pre><code>##            Adj.Close
+## 2001-02-01   0.00000
+## 2001-03-01  -0.14493
+## 2001-04-02   0.13559
+## 2001-05-03   0.11940
+## 2001-06-01  -0.09333
+## 2001-07-02   0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>continuously compounded returns</h2>
+  </hgroup>
+  <article>
+    <p>\[
+r_t = \log(1 + R_t) = \log \left( \frac{P_t}{P_{t-1}} \right)
+\]</p>
+
+<h3>easy way</h3>
+
+<pre><code class="r">petr4.ccret = log(1 + petr4.ret)
+head(petr4.ccret)
+</code></pre>
+
+<pre><code>## 2001-02-01 2001-03-01 2001-04-02 2001-05-03 2001-06-01 2001-07-02 
+##    0.00000   -0.15657    0.12716    0.11280   -0.09798    0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h3>alternatively</h3>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.ccret = log(petr4Prices.df[2:n, 1]) - log(petr4Prices.df[1:(n - 1), 1])
+names(petr4.ccret) = rownames(petr4Prices.df)[2:n]
+head(petr4.ccret)
+</code></pre>
+
+<pre><code>## 2001-02-01 2001-03-01 2001-04-02 2001-05-03 2001-06-01 2001-07-02 
+##    0.00000   -0.15657    0.12716    0.11280   -0.09798    0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h2>comparing returns</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">head(cbind(petr4.ret, petr4.ccret))
+</code></pre>
+
+<pre><code>##            petr4.ret petr4.ccret
+## 2001-02-01   0.00000     0.00000
+## 2001-03-01  -0.14493    -0.15657
+## 2001-04-02   0.13559     0.12716
+## 2001-05-03   0.11940     0.11280
+## 2001-06-01  -0.09333    -0.09798
+## 2001-07-02   0.00000     0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>plotting simple and continuous returns</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">par(mfrow = c(2, 1))  # split screen into 2 rows and 1 column
+plot(petr4.ret, main = &quot;Monthly Simple Returns on PETR4&quot;, ylab = &quot;Return&quot;, type = &quot;l&quot;, 
+    col = &quot;blue&quot;, lwd = 2)
+abline(h = 0)
+plot(petr4.ccret, main = &quot;Monthly Continuously Compounded Returns on PETR4&quot;, ylab = &quot;Return&quot;, 
+    type = &quot;l&quot;, col = &quot;blue&quot;, lwd = 2)
+abline(h = 0)
+par(mfrow = c(1, 1))  # reset the screen to 1 row and 1 column
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-20" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <p><img src="figure/unnamed-chunk-19.png" alt="plot of chunk unnamed-chunk-19"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h2>on the same graph</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(petr4.ret, main = &quot;Monthly Returns on PETR4&quot;, ylab = &quot;Return&quot;, type = &quot;l&quot;, col = &quot;blue&quot;, 
+    lwd = 2)
+abline(h = 0)
+lines(petr4.ccret, col = &quot;red&quot;, lwd = 2)
+legend(x = &quot;topright&quot;, legend = c(&quot;Simple&quot;, &quot;CC&quot;), lty = 1, lwd = 2, col = c(&quot;blue&quot;, 
+    &quot;red&quot;))
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <p><img src="figure/unnamed-chunk-21.png" alt="plot of chunk unnamed-chunk-21"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.gret = 1 + petr4.ret  # compute gross returns
+petr4.fv = cumprod(petr4.gret)  # compute future values
+plot(petr4.fv, type = &quot;l&quot;, col = &quot;blue&quot;, lwd = 2, ylab = &quot;$$&quot;, main = &quot;growth of $1 invested in PETR4&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-22.png" alt="plot of chunk unnamed-chunk-22"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h2>could life be easier?</h2>
+  </hgroup>
+  <article>
+    <p>R has a large number of packages that make life easier.</p>
+
+<ul>
+<li><a href="http://cran.fhcrc.org/web/packages/PerformanceAnalytics/index.html">PerformanceAnalytics</a>: Econometric tools for performance and risk analysis</li>
+<li><a href="http://cran.r-project.org/web/packages/quantmod/index.html">quantmod</a>: functions for quantitative modelling in finance</li>
+<li><a href="http://cran.fhcrc.org/web/packages/zoo/index.html">zoo</a>: Z&#39;s ordered observations</li>
+<li><a href="http://cran.fhcrc.org/web/packages/xts/index.html">xts</a>: Extensible time series</li>
+<li><a href="http://cran.fhcrc.org/web/packages/tseries/index.html">tseries</a>: Time series analysis and computational finance</li>
+<li><a href="http://cran.r-project.org/web/packages/fPortfolio/index.html">fPortfolio</a>: Portfolio Selection and Optimization</li>
+<li><a href="http://cran.fhcrc.org/web/packages/mvtnorm/index.html">mvtnorm</a>: Multivariate normal and multivariate t distribution</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2>CRAN</h2>
+  </hgroup>
+  <article>
+    <iframe src='http://cran.r-project.org/index.html' height="600px"></iframe>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h2>CRAN Task Views</h2>
+  </hgroup>
+  <article>
+    <iframe src='http://cran.r-project.org/web/views/' height="600px"></iframe>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h2>Finance Task View</h2>
+  </hgroup>
+  <article>
+    <iframe src='http://cran.r-project.org/web/views/Finance.html' height="600px"></iframe>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-28" style="background:;">
+  <hgroup>
+    <h2>PerformanceAnalytics package</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">library(PerformanceAnalytics)
+</code></pre>
+
+<pre><code>## Loading required package: zoo
+</code></pre>
+
+<pre><code>## Attaching package: &#39;zoo&#39;
+</code></pre>
+
+<pre><code>## The following object(s) are masked from &#39;package:base&#39;:
+## 
+## as.Date, as.Date.numeric
+</code></pre>
+
+<pre><code>## Loading required package: xts
+</code></pre>
+
+<pre><code>## Attaching package: &#39;PerformanceAnalytics&#39;
+</code></pre>
+
+<pre><code>## The following object(s) are masked from &#39;package:graphics&#39;:
+## 
+## legend
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">dates.petr4 = as.yearmon(petr4.df$Date, format = &quot;%Y-%m-%d&quot;)  # convert to month-year
+head(dates.petr4)
+</code></pre>
+
+<pre><code>## [1] &quot;Jan 2001&quot; &quot;Feb 2001&quot; &quot;Mar 2001&quot; &quot;Apr 2001&quot; &quot;May 2001&quot; &quot;Jun 2001&quot;
+</code></pre>
+
+<pre><code class="r">petr4.z = zoo(x = petr4.df$Adj.Close, order.by = dates.petr4)  # create zoo object
+class(petr4.z)
+</code></pre>
+
+<pre><code>## [1] &quot;zoo&quot;
+</code></pre>
+
+<pre><code class="r">head(petr4.z)
+</code></pre>
+
+<pre><code>## Jan 2001 Feb 2001 Mar 2001 Apr 2001 May 2001 Jun 2001 
+##     0.69     0.69     0.59     0.67     0.75     0.68
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-30" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">plot(petr4.z, lwd = 2, col = &quot;blue&quot;, ylab = &quot;Prices&quot;, xlab = &quot;Months&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-25.png" alt="plot of chunk unnamed-chunk-25"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h2>subsetting zoo objects</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4.z[as.yearmon(c(&quot;Jan 2010&quot;, &quot;Jan 2011&quot;))]
+</code></pre>
+
+<pre><code>## Jan 2010 Jan 2011 
+##    33.45    26.85
+</code></pre>
+
+<pre><code class="r">window(petr4.z, start = as.yearmon(&quot;Jan 2010&quot;), end = as.yearmon(&quot;Jan 2011&quot;))
+</code></pre>
+
+<pre><code>## Jan 2010 Feb 2010 Mar 2010 Apr 2010 May 2010 Jun 2010 Jul 2010 Aug 2010 
+##    33.45    33.88    34.64    32.11    29.16    26.46    27.43    25.83 
+## Sep 2010 Oct 2010 Nov 2010 Dec 2010 Jan 2011 
+##    27.25    25.62    24.37    27.05    26.85
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-32" style="background:;">
+  <hgroup>
+    <h2>computing returns made simple</h2>
+  </hgroup>
+  <article>
+    <h3>core (no-package dependency)</h3>
+
+<pre><code class="r">petr4Ret.z = diff(petr4.z)/lag(petr4.z, k = -1)
+petr4Retcc.z = diff(log(petr4.z))
+head(merge(petr4Ret.z, petr4Retcc.z))
+</code></pre>
+
+<pre><code>##          petr4Ret.z petr4Retcc.z
+## Feb 2001    0.00000      0.00000
+## Mar 2001   -0.14493     -0.15657
+## Apr 2001    0.13559      0.12716
+## May 2001    0.11940      0.11280
+## Jun 2001   -0.09333     -0.09798
+## Jul 2001    0.00000      0.00000
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    <h3>with PerformanceAnalytics functions</h3>
+  </hgroup>
+  <article>
+    <pre><code class="r">petr4Ret.z = CalculateReturns(petr4.z, method = &quot;simple&quot;)
+petr4Retcc.z = CalculateReturns(petr4.z, method = &quot;compound&quot;)
+head(merge(petr4Ret.z, petr4Retcc.z))
+</code></pre>
+
+<pre><code>##          e1 petr4Retcc.z
+## Jan 2001  0           NA
+## Feb 2001  0      0.00000
+## Mar 2001  0     -0.15657
+## Apr 2001  0      0.12716
+## May 2001  0      0.11280
+## Jun 2001  0     -0.09798
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">chart.CumReturns(petr4Ret.z, lwd = 2, col = &quot;red&quot;, main = &quot;Growth of $1&quot;)
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-30.png" alt="plot of chunk unnamed-chunk-30"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    <h2>quantmod package</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">library(quantmod)
+</code></pre>
+
+<pre><code>## Loading required package: Defaults
+</code></pre>
+
+<pre><code>## Loading required package: TTR
+</code></pre>
+
+<pre><code>## Loading required package: methods
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-36" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">getSymbols(&quot;YHOO&quot;)  # fetching time series as xts object
+</code></pre>
+
+<pre><code>## [1] &quot;YHOO&quot;
+</code></pre>
+
+<pre><code class="r">class(YHOO)
+</code></pre>
+
+<pre><code>## [1] &quot;xts&quot; &quot;zoo&quot;
+</code></pre>
+
+<pre><code class="r">colnames(YHOO)
+</code></pre>
+
+<pre><code>## [1] &quot;YHOO.Open&quot;     &quot;YHOO.High&quot;     &quot;YHOO.Low&quot;      &quot;YHOO.Close&quot;   
+## [5] &quot;YHOO.Volume&quot;   &quot;YHOO.Adjusted&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-37" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">start(YHOO)  # first date
+</code></pre>
+
+<pre><code>## [1] &quot;2007-01-03&quot;
+</code></pre>
+
+<pre><code class="r">end(YHOO)  # last date
+</code></pre>
+
+<pre><code>## [1] &quot;2012-12-20&quot;
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-38" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">head(YHOO)
+</code></pre>
+
+<pre><code>##            YHOO.Open YHOO.High YHOO.Low YHOO.Close YHOO.Volume YHOO.Adjusted
+## 2007-01-03     25.85     26.26    25.26      25.61    26352700         25.61
+## 2007-01-04     25.64     26.92    25.52      26.85    32512200         26.85
+## 2007-01-05     26.70     27.87    26.66      27.74    64264600         27.74
+## 2007-01-08     27.70     28.04    27.43      27.92    25713700         27.92
+## 2007-01-09     28.00     28.05    27.41      27.58    25621500         27.58
+## 2007-01-10     27.48     28.92    27.44      28.70    40240000         28.70
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-39" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code class="r">chartSeries(YHOO, theme = chartTheme(&quot;white&quot;))
+</code></pre>
+
+<p><img src="figure/unnamed-chunk-35.png" alt="plot of chunk unnamed-chunk-35"> </p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="thank-you-slide segue nobackground">
+  <article class="flexbox vleft auto-fadein">
+	<h2>Computing Returns</h2>
+	
+  </article>
+  <p class="auto-fadein" data-config-contact>
+    <!-- populated from slide_config.json -->
+  </p>
+</slide>
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

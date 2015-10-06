@@ -1,0 +1,39 @@
+## Other approaches for creating time series objects
+
+Instead of ordering `data.frame` object by its rownames we could simply use `xts` *constructor* to build time series objects from Yahoo! Finance CSV files.
+
+First of all, load the CSV file using `read.csv` function.
+This function returns a `data.frame` object and has some important parameters that might be used in order to make the work easier.
+
+```{r, message=FALSE}
+library(xts)
+vale5.df <- read.csv('data/VALE5.monthly.raw.csv', header=TRUE, stringsAsFactors=FALSE, row.names=1)
+```
+
+The first *must-use* parameter is `header=TRUE` which tells that the very first line of the CSV file contains the columns names and that information is used to set `data.frame` columns names.
+The second parameter is `stringsAsFactors=FALSE` which tells that string fields shouldn't be loaded as `factor` (another R primitive).
+Factors are interesting when we have categorical data, that's not the case of date fields, so string dates must be loaded as strings.
+The third parameter is `row.names=1` which sets the column 1 to `data.frame` row names.
+It's quite important having the row names correctly defined because, once you have it defined properly you can simply call `xts` constructor passing the `data.frame` object and the row names are automatically set to time series index.
+Once the time series is created it's ordered by its index attribute, so you have only to be sure of giving the data synchronized with its index.
+
+```{r}
+str(vale5.df)
+head(vale5.df)
+tail(vale5.df)
+```
+
+```{r}
+vale5.ts <- as.xts(vale5.df)
+str(vale5.ts)
+head(vale5.ts)
+tail(vale5.ts)
+```
+
+```{r}
+as.yearmon(rownames(vale5.df), format="%Y-%m-%d")
+vale5.ts <- as.xts(vale5.df, order.by=as.yearmon(rownames(vale5.df), format="%Y-%m-%d"))
+str(vale5.ts)
+head(vale5.ts)
+tail(vale5.ts)
+```

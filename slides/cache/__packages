@@ -1,0 +1,14 @@
+quantmod
+TTR
+xts
+zoo
+Defaults
+urca
+methods
+slidify
+stats
+graphics
+grDevices
+utils
+datasets
+base

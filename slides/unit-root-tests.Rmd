@@ -1,0 +1,263 @@
+---
+
+title       : Testes de raiz unitária  
+subtitle    : Avaliando estacionariedade em séries temporais financeiras  
+
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}  
+highlighter : highlight.js  # {highlight.js, prettify, highlight}  
+hitheme     : tomorrow      #   
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}  
+mode        : selfcontained # {standalone, draft}  
+
+author      : Wilson Freitas  
+job         : Quant Developer  
+
+name		: Wilson Freitas  
+company		: Quant Developer  
+gplus		: https://plus.google.com/u/0/114469936125336696794
+twitter		: @aboutwilson
+www			: http://www.aboutwilson.net/trading-strategies/
+github		: https://github.com/wilsonfreitas
+
+---
+```{r setup, message=FALSE, cache=FALSE, include=FALSE}
+#opts_chunk$set(cache=TRUE, autodep=TRUE)
+#dep_auto() # figure out dependencies automatically
+require(urca)
+require(quantmod)
+```
+## Recursos
+
+- [index.Rmd](index.Rmd)
+
+
+--- .segue .dark .nobackground
+## Testes de Raiz Unitária
+
+---
+
+## Definição do teste de raiz unitária
+
+Existem diversos testes de raiz unitária (RU)
+
+1. Augmented Dickey-Fuller (ADF)
+1. Phillips-Perron (PP)
+1. Kwiatkowski-Phillips-Schmidt-Shin (KPSS)
+1. ...
+
+Na maioria dos testes a hipótese nula é de que a série tenha raiz unitária, e portanto não seja estacionária, logo:
+$$
+\begin{split}
+H_0: & \textrm{tem raiz unitária (não é estacionária)}\\
+H_1: & \textrm{não tem raiz unitária (é estacionária)}
+\end{split}
+$$
+
+**No teste KPSS a hipótese nula é de que não existe raiz unitária.**
+
+--- &smaller
+
+## Implementando o teste de raiz unitária
+
+Temos uma série temporal $y_t$ e desejamos estimar o seguinte modelo para esta série:
+
+$$
+y_t = \phi y_{t-1} + \varepsilon_t
+$$
+
+que claramente é um AR(1) e está sujeito a 
+
+$$
+\varepsilon_t \sim iid\, N(0, \sigma^2)\,\, \forall \,\, t \\
+\mathrm{E}\left[ \varepsilon_t\varepsilon_s \right] = 0,\,\, \forall \,\, t \neq s
+$$
+
+Para que $y_t$ seja estacionário temos que obter $\phi$ que atenda a restrição $|\phi| < 1$.
+Logo, as hipóteses do teste devem reescritas como:
+
+$$
+\begin{split}
+H_0: & \phi = 1,\, y_t \textrm{ não é estacionário}\\
+H_1: & |\phi| < 1,\, y_t \textrm{ é estacionário}
+\end{split}
+$$
+
+<div class="centered red3" style="margin-top: 2em;">
+	Testar a estacionariedade $\longrightarrow$ teste-$t$ sobre $\hat{\phi}$
+</div>
+
+--- &smaller
+
+No entanto, é mais comum testar se os coeficientes são nulos de forma que uma simples transformação no modelo nos leva a
+
+$$
+\Delta y_t = (\phi - 1) y_{t-1} + \varepsilon_t = \pi\, y_{t-1} + \varepsilon_t
+$$
+
+e consequentemente novas hipóteses
+
+$$
+\begin{split}
+H_0: & \pi = 0,\, y_t \textrm{ não é estacionário}\\
+H_1: & \pi < 0,\, y_t \textrm{ é estacionário}
+\end{split}
+$$
+
+<div class="red3 centered"  style="margin-top: 2em; margin-bottom: 2em;">
+	Esta abordagem é utilizada no teste ADF.
+</div>
+
+Infelizmente, na prática a teoria é outra de forma que nem sempre é possível utilizar apenas um AR(1) para identificar a existência de raiz unitária.
+Algumas séries possuem uma estrutura mais complexa e um simples AR(1) não é suficiente para capturá-la.
+
+Veremos a seguir como os testes ADF e PP contornam este problema.
+
+--- .segue .dark .nobackground
+## Testes de Dickey-Fuller
+
+--- &smaller
+## Testes de Dickey-Fuller
+
+Segundo Dickey-Fuller, devem ser consideradas 3 abordagens para realizar o teste de raiz unitária (considerando $H_0: \pi = 0$).
+
+##### Random-walk com drift e tendência deterministica
+$$
+\Delta Z_t = \beta_0 + \beta_1 t + \pi Z_{t-1} + \sum_{i=1}^{p-1} \delta_i \Delta Z_{t-i} + \varepsilon_t
+$$
+
+##### Random-walk com drift
+$$
+\Delta Z_t = \beta_0 + \pi Z_{t-1} + \sum_{i=1}^{p-1} \delta_i \Delta Z_{t-i} + \varepsilon_t
+$$
+
+##### Random-walk plain-vanilla
+$$
+\Delta Z_t = \pi Z_{t-1} + \sum_{i=1}^{p-1} \delta_i \Delta Z_{t-i} + \varepsilon_t
+$$
+
+--- &smaller
+
+- A estrutura do AR(1) foi extendida para acomodar uma estrutura ARMA(p,q) mais geral.
+- Essa extenção é conhecida como augmented Dickey-Fuller (ADF).
+- O teste considerando apenas o modelo AR(1) é o teste de Dickey-Fuller padrão que pode ser tratado como uma caso particular do teste ADF quando $p=1$.
+- A estatística de interesse é
+$$
+\tau_i = \frac{\hat{\phi}-1}{S_{\hat{\phi}}}
+$$
+onde $i=1,2,3$ representam os modelos propostos.
+- Note que apesar do teste de RU ter uma *jeitão* de teste-$t$, na prática não é, pois a distribuição de $\tau_i$ não é uma $t$ de Student.
+- Cada modelo proposto possui uma distribuição para $\tau_i$.
+- As distribuições para $\tau_i$ são obtidas através de simulações de Monte-Carlo (MacKinnon 1996).
+
+---
+- O gráfico abaixo apresenta os p-valores da estatística $\tau_i$.
+
+```{r mackinnon, include=FALSE, fig.width=10}
+nc.t <- unitrootTable(trend="nc", statistic="t")
+c.t <- unitrootTable(trend="c", statistic="t")
+ct.t <- unitrootTable(trend="ct", statistic="t")
+y <- colnames(nc.t)
+plot(nc.t[5,], y, col="black", type="b", xlim=c(min(ct.t[5,]), max(nc.t[5,])), main="", xlab=expression(tau), ylab="PDF", pch=16, cex=2)
+points(c.t[5,], y, type="b", col="red", pch=16, cex=2)
+points(ct.t[5,], y, type="b", col="blue", pch=16, cex=2)
+legend(x="bottomright", legend=c("trend (1)", "drift (2)", "random-walk (3)"), pch=16, cex=1, col=c("blue", "red", "black"), bty="n")
+```
+<p style="text-align:center;">
+	<img src="figure/mackinnon.png">
+</p>
+
+--- .segue .dark .nobackground
+## Teste ADF no R
+
+--- &smaller
+O teste ADF no R está na função `ur.df` do pacote [`urca`](http://cran.r-project.org/web/packages/urca/) implementado por [Bernhard Pfaff](http://www.pfaffikus.de/) autor do livro [Analysis of Integrated and Cointegrated Time Series with R (Use R!)](http://www.amazon.com/Analysis-Integrated-Cointegrated-Time-Series/dp/0387759662/ref=sr_1_1?ie=UTF8&qid=1354657433&sr=8-1&keywords=Bernhard+Pfaff).
+
+```{r}
+args(ur.df)
+```
+- `type` recebe o modelo a ser considerado na realização do teste. `none` define o modelo random-walk plain-vanilla e os demais parâmetros são auto-explicativos.
+- `selectlags` define qual o critério será utilizado para a seleção do modelo estimado. `Fixed` é o padrão de forma que o modelo é estimado com os `lags` fornecidos e não há seleção de modelo.
+- `lags` define a quantidade de lags a ser utilizada na estimação da parte ARMA(p,q) do modelo. Este parâmetro deve ser utilizado em conjunto com o parâmetro `selectlags`. Se `selectlags` for `AIC` ou `BIC` o valor de `lags` é a quantidade máxima de parâmetros que um modelo poderá possuir. Logo, na dúvida chute um número razoável para `lags` e reze, porque a partir daqui já virou uma questão de fé.
+
+--- &smaller
+```{r, include=FALSE}
+getSymbols("^BVSP")
+BVSP.price <- log(BVSP["2011", "BVSP.Adjusted"])
+```
+
+Vamos aplicar o teste ADF a série diária do log do BOVESPA para o ano de 2011.
+Note que a série claramente apresenta uma tendência de queda, e isto para mim são bons indícios de que o modelo com tendência deterministica seja adequado para realizar o teste de RU.
+
+```{r BVSP, include=FALSE, fig.width=14}
+plot(BVSP.price)
+```
+
+<p style="text-align:center;">
+	<img src="figure/BVSP.png">
+</p>
+
+--- &smaller
+
+Começemos com `type="trend"`, `lags=4` e `selectlags="BIC"` e soca a bota.
+
+```{r, message=FALSE}
+library(urca)
+ur <- ur.df(y=BVSP.price, lags=4, type="trend", selectlags="BIC")
+ur@testreg
+```
+
+--- &smaller
+### Conclusões
+
+- O modelo selecionado foi `lm(formula = z.diff ~ z.lag.1 + 1 + tt + z.diff.lag)` com `lags=1`, mesmo fornecendo `lags=4`
+- O coeficiente da tendência `tt` é negativo mantendo a coerência com o gráfico.
+- O coeficiente `z.lag.1`, parâmetro de interesse para o teste de raiz unitária e para avaliar a sua insignificância precisamos da tabela de valores críticos que fica na variável `ur@cval` do teste.
+```{r, echo=FALSE}
+ur@cval
+```
+- `tau3` é a estatística referente ao coeficiente `z.lag.1` e estes são os dados que interessam, a informação de significância da tabela `Coefficients` refere-se ao teste-$t$.
+Na mesma tabela temos que o valor da estatistíca para `z.lag.1` é -2.32 e avaliando os níveis críticos de `tau3` concluímos que não é possível rejeitar a hipótese nula para `z.lag.1` e, portanto, a série tem raiz unitária e é não-estacionária.
+
+--- &vcenter
+### Ahhh ... os resíduos
+É importante, obviamente, dar uma olhada nos resíduos.
+A variável `ur@res` contem os resíduos e o comando `plot(ur)` gera o gráfico abaixo.
+
+```{r p1, fig.width=12, fig.height=6, echo=FALSE}
+plot(ur)
+```
+
+---
+### Sanity-check
+
+- Apenas para ter certeza de que as coisas funcionam como deveriam funcionar vamos realizar o teste ADF com um random-walk gerado.
+- Vamos usar `type="none"`, pois o random-walk foi gerado sem drift e sem tendência deterministica.
+
+```{r, message=FALSE, echo=2}
+set.seed(123)
+ur <- ur.df(y=cumsum(c(100, rnorm(250))), lags=4, type="none", selectlags="BIC")
+```
+
+Os resultados estão no próximo slide.
+
+---
+
+```{r, message=FALSE, echo=FALSE}
+ur@testreg
+```
+
+---
+### Conclusões
+- O valor da estatística de interesse é -0.28.
+- Os valores críticos para o teste são
+```{r, message=FALSE, echo=FALSE}
+ur@cval
+```
+- Note que `tau1` é a variável de interesse, pois refere-se ao modelo random-walk plain-vanilla e os seus valores críticos são diferentes daqueles obtidos no teste com a série do Bovespa onde a variável era `tau3`.
+- Não rejeitamos a hipótese nula e portanto:
+	- <span class="red3">A série tem raiz unitária</span>
+	- A série é não-estacionária
+
+--- &thanks
+## Testes de raiz unitária
+

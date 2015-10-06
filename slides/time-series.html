@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simulando séries temporais lineares</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Simulando séries temporais lineares">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Simulando séries temporais lineares</h1>
+        <h2></h2>
+		<p data-config-presenter>
+        <!-- <p>Wilson Freitas<br/>Quant</p> -->
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>download de recursos</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><a href="index.Rmd">index.Rmd</a>: código fonte da apresentação</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>ruído branco Gaussiano</h2>
+  </hgroup>
+  <article>
+    <p>Um ruído branco é uma sequência de variáveis aleatórias independentes e identicamente distribuídas (iid) com média e variância finitas. Se a sequência tem distribuição normal com média zero e variância \(\sigma^2\) temos uma série de ruídos brancos Gaussianos.</p>
+
+<p>\[ Y_t \sim iid\,N(0, \sigma^2)\,\, \forall\,\, t \]</p>
+
+<p>\[ \mathbb{E}[Y_tY_s] = 0 \,\, \forall\,\, t \neq s \]</p>
+
+<pre><code class="r">y = rnorm(100)
+</code></pre>
+
+<pre><code>## [1]  0.5049  0.3959  1.4155 -0.7223 -0.6184 -1.5626
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>ruído branco Gaussiano</h2>
+  </hgroup>
+  <article>
+    <p style="text-align:center;">
+<img src="figure/whitenoise.png">
+<img src="figure/whitenoise-acf.png">
+</p>
+
+<!-- <table>
+<tr>
+<th>Ruído branco</th><th>Autocorrelação</th>
+</tr>
+<tr>
+<td><img src="figure/whitenoise.png"></td>
+<td><img src="figure/whitenoise-acf.png"></td>
+</tr>
+</table> -->
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>random walk process</h2>
+  </hgroup>
+  <article>
+    <p>Uma série temporal \({y_t}\) é um <em>random walk</em> se satisfaz</p>
+
+<p>\[y_t = y_{t-1} + \varepsilon_t\]
+\[ \varepsilon_t \sim iid\, N(0, \sigma^2)\,\, \forall \,\, t \]
+\[ \mathrm{E}\left[ \varepsilon_t\varepsilon_s \right] = 0,\,\, \forall \,\, t \neq s  \]</p>
+
+<p>onde \(p_0\) é o valor inicial da série.</p>
+
+<pre><code class="r">e = c(100, rnorm(250))  # p_0 = 100
+y.rw = cumsum(e)
+</code></pre>
+
+<pre><code>## [1] 100.0 100.5 100.9 102.3 101.6 101.0
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>random walk process</h2>
+  </hgroup>
+  <article>
+    <p style="text-align:center;">
+    <img src="figure/random-walk.png">
+    <img src="figure/random-walk-acf.png">
+</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-6" style="background:;">
+	<hgroup>
+		<h2>simulando MA(1)</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Uma série temporal MA(1) satisfaz</p>
+
+<p>\[y_t = \mu + \varepsilon_t - \theta\varepsilon_{t-1},\,\, \varepsilon_t \sim iid\, N(0,\sigma^2)\]</p>
+
+<pre><code class="r"># theta = 0.5, sigma = 1
+ma1.model = list(ma = 0.5)
+mu = 1
+ma1.sim.1 = mu + arima.sim(model = ma1.model, n = 100)
+</code></pre>
+
+<p style="text-align:center;">
+<img src="figure/ma1-sim-1.png">
+</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>simulando MA(1)</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r"># theta = 0.5, sigma = 0.1
+ma1.model = list(ma = 0.5)
+mu = 1
+ma1.sim.2 = mu + arima.sim(model = ma1.model, n = 100, innov = rnorm(n = 100, 
+    mean = 0, sd = 0.1))
+</code></pre>
+
+<p style="text-align:center;">
+<img src="figure/ma1-sim-2.png">
+</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>MA(1) autocorrelation function</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">ma1.acf = ARMAacf(ar = 0, ma = 0.5, lag.max = 10)
+</code></pre>
+
+<p style="text-align:center;">
+<img src="figure/ma1-acf.png">
+</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-9" style="background:;">
+	<hgroup>
+		<h2>simulando AR(1)</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Uma série temporal AR(1) satisfaz</p>
+
+<p>\[y_t = \mu + \phi y_{t-1} + \varepsilon_t,\,\, \varepsilon_t \sim iid\,N(0,\sigma^2)\]</p>
+
+<pre><code class="r"># phi = 0.7, sigma = 1
+ar1.model = list(ar = 0.7)
+mu = 1
+ar1.sim.1 = mu + arima.sim(model = ar1.model, n = 100, innov = rnorm(n = 100, 
+    mean = 0, sd = 1))
+</code></pre>
+
+<p style="text-align:center;">
+<img src="figure/ar1-sim-1.png">
+</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>simulando AR(1)</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r"># phi = 0.7, sigma = 0.1
+ar1.model = list(ar = 0.7)
+mu = 1
+ar1.sim.2 = mu + arima.sim(model = ar1.model, n = 100, innov = rnorm(n = 100, 
+    mean = 0, sd = 0.1))
+</code></pre>
+
+<p style="text-align:center;">
+<img src="figure/ar1-sim-2.png">
+</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>AR(1) autocorrelation function</h2>
+  </hgroup>
+  <article>
+    <pre><code class="r">ar1.acf = ARMAacf(ar = 0.7, ma = 0, lag.max = 10)
+</code></pre>
+
+<p style="text-align:center;">
+<img src="figure/ar1-acf.png">
+</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="thank-you-slide segue nobackground">
+  <article class="flexbox vleft auto-fadein">
+	<h2>Simulando séries temporais lineares</h2>
+	
+  </article>
+  <p class="auto-fadein" data-config-contact>
+    <!-- populated from slide_config.json -->
+  </p>
+</slide>
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

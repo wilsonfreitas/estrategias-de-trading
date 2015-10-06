@@ -1,0 +1,460 @@
+---
+
+title       : Teoria de carteiras de Markowitz  
+subtitle    :   
+author      : Wilson Freitas  
+job         : Quant  
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}  
+highlighter : highlight.js  # {highlight.js, prettify, highlight}  
+hitheme     : tomorrow      #   
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}  
+mode        : selfcontained # {standalone, draft}  
+
+---
+
+<!-- 
+VALE3: jan 2000 - nov 2012
+USIM5: jan 2000 - nov 2012
+PETR3: jan 2000 - nov 2012
+PETR3: jan 2000 - nov 2012
+
+*BBDC3: jan 2000 - nov 2012
+PETR4: jan 2000 - nov 2012
+USIM3: jan 2000 - nov 2012
+
+VALE5: jan 2003 - nov 2012
+ITUB4: jan 2001 - nov 2012
+-->
+
+## download de recursos
+
+- [index.Rmd](index.Rmd): código fonte da apresentação
+- [portfolio.r](scripts/portfolio.r): conjunto de funções em R para cálculo de fronteira eficiente de carteiras desenvolvido por Eric Zivot
+- [getReturns.r](scripts/getReturns.r): funções para facilitar o cálculo de retorno de séries temporais carregadas de arquivos do Yahoo! Finance
+- [PETR3.monthly.raw.csv](data/PETR3.monthly.raw.csv),  [PETR4.monthly.raw.csv](data/PETR4.monthly.raw.csv)
+- [VALE3.monthly.raw.csv](data/VALE3.monthly.raw.csv),  [VALE5.monthly.raw.csv](data/VALE5.monthly.raw.csv)
+- [USIM3.monthly.raw.csv](data/USIM3.monthly.raw.csv),  [USIM5.monthly.raw.csv](data/USIM5.monthly.raw.csv)
+- [ITUB3.monthly.raw.csv](data/ITUB3.monthly.raw.csv),  [ITUB4.monthly.raw.csv](data/ITUB4.monthly.raw.csv)
+
+---
+
+## Carregando `getReturns.r`
+
+```{r setup, include=FALSE}
+options(digits=4, width=70)
+```
+
+É necessário carregar o *módulo* `getReturns.r` que contém a função `getReturnsFromYahooFiles`, que será útil para gerar os retornos a partir dos dados baixados do Yahoo! Finance.
+
+```{r, message=FALSE}
+source("scripts/getReturns.r")
+```
+
+---
+
+## Carregando as séries temporais
+
+Os arquivos CSV foram baixados do Yahoo! Finance e contém os dados de preços das ações com periodicidade mensal (referentes ao começo de cada mês).
+A função `getReturnsFromYahooFiles` carrega os arquivos e devolve as séries de retornos referentes a coluna de preço de fechamento ajustado (`Adj.Close`).
+
+```{r}
+filelist <- c('data/VALE3.monthly.raw.csv', 'data/PETR3.monthly.raw.csv')
+returns.monthly.x <- getReturnsFromYahooFiles(filelist)
+```
+```{r, echo=FALSE}
+head(returns.monthly.x)
+```
+
+---
+
+## Calculando as estatísticas descritivas
+
+### Média anual
+```{r}
+muhat.annual  <- apply(returns.monthly.x, 2, mean)*12
+```
+```{r, echo=FALSE}
+muhat.annual
+```
+
+### Desvio padrão anual
+```{r}
+sigma2.annual <- apply(returns.monthly.x, 2, var)*12
+sigma.annual  <- sqrt(sigma2.annual)
+```
+```{r, echo=FALSE}
+sigma.annual
+```
+
+---
+
+## Calculando as estatísticas descritivas
+
+### Covariância anual
+
+```{r}
+covmat.annual <- cov(returns.monthly.x)*12
+covhat.annual <- cov(returns.monthly.x)[1,2]*12
+```
+```{r, echo=FALSE}
+covhat.annual
+```
+
+### Correlação
+
+```{r}
+rhohat.annual <- cor(returns.monthly.x)[1,2]
+```
+```{r, echo=FALSE}
+rhohat.annual
+```
+
+---
+
+## Calculando as estatísticas descritivas
+
+Para os cálculos da fronteira eficiente vamos separar as variáveis de forma que o sufixo $i$ é referente a `PETR3` e o sufixo $v$ refere-se a `VALE3`.
+O sufixo $vi$ relaciona ambas séries temporais.
+
+```{r}
+mu.v = muhat.annual["VALE3"]
+mu.i = muhat.annual["PETR3"]
+sig2.v =  sigma2.annual["VALE3"]
+sig2.i = sigma2.annual["PETR3"]
+sig.v = sigma.annual["VALE3"]
+sig.i = sigma.annual["PETR3"]
+sig.vi = covhat.annual
+rho.vi = rhohat.annual
+```
+
+---
+
+## Criando uma carteira
+
+Dado o retorno esperado da carteira
+
+$$
+\mu_p(x_v, x_i) = x_v \mu_v + x_i \mu_i
+$$
+
+e a sua variância
+
+$$
+\sigma^2_p(x_v, x_i) = \sigma^2_v x_v^2 + \sigma^2_i x_i^2 + 2 x_v x_i \sigma_{vi}
+$$
+
+vamos calculá-los para diferentes combinações de pesos ($x_v$ e $x_i$) sujeitas a restrição $x_v + x_i = 1$
+
+```{r}
+x.v = seq(from=-1, to=2, by=0.1) # pesos para VALE3
+x.i = 1 - x.v # pesos para PETR3
+mu.p = x.v*mu.v + x.i*mu.i # retorno esperado da carteira
+sig2.p = sig2.v*x.v^2 + sig2.i*x.i^2 + 2*x.v*x.i*sig.vi
+sig.p = sqrt(sig2.p) # volatilidade da carteira
+```
+
+---
+
+## Fronteira eficiente (2 ativos / long-short)
+
+Destacado em laranja temos os ativos independentes.
+
+```{r, echo=FALSE, fig.width=14}
+px = which(sig.p == min(sig.p))
+up = sum(mu.p >= mu.p[px])
+dn = sum(mu.p <  mu.p[px])
+plot(sig.p, mu.p, type="b", pch=16, 
+	ylim=c(min(mu.p), max(mu.p)), xlim=c(0, max(sig.p)), 
+	xlab=expression(sigma[p]), ylab=expression(mu[p]), 
+	col=c(rep("red3", dn), rep("green3", up))
+	)
+text(x=sig.v, y=mu.v, labels="100% VALE3", pos=4)
+text(x=sig.i, y=mu.i, labels="100% PETR3", pos=4)
+points(x=sig.v, y=mu.v, type="b", col="orange3", pch=16, cex=1.5)
+points(x=sig.i, y=mu.i, type="b", col="orange3", pch=16, cex=1.5)
+
+n <- c("VALE3", "PETR3")
+w <- c(x.v[1], x.i[1])
+text(x=sig.p[1], y=mu.p[1], labels=paste(paste(w*100, "%", sep=""), n, collapse=", "), pos=2)
+points(x=sig.p[1], y=mu.p[1], type="b", col="blue3", pch=16, cex=1.5)
+l <- length(sig.p)
+w <- c(x.v[l], x.i[l])
+text(x=sig.p[l], y=mu.p[l], labels=paste(paste(w*100, "%", sep=""), n, collapse=", "), pos=2)
+points(x=sig.p[l], y=mu.p[l], type="b", col="blue3", pch=16, cex=1.5)
+```
+
+---
+
+## Calculando a carteira de mínima variância
+
+Para o cálculo da Sharpe-Ratio da carteira de mínima variância é necessário definir uma taxa livre de risco.
+Aqui vamos considerar $r_f = 7\%$.
+
+```{r}
+r.f = 0.07
+source("scripts/portfolio.r")
+gmin.port = globalMin.portfolio(muhat.annual, covmat.annual) 
+summary(gmin.port, risk.free=r.f)
+```
+
+---
+
+## Fronteira eficiente (2 ativos / long-short)
+
+Destacado em azul temos a carteira de mínima variância
+
+```{r, echo=FALSE, fig.width=14}
+px = which(sig.p == min(sig.p))
+up = sum(mu.p >= mu.p[px])
+dn = sum(mu.p <  mu.p[px])
+plot(sig.p, mu.p, type="b", pch=16,
+	ylim=c(min(mu.p), max(mu.p)), xlim=c(0, max(sig.p)),
+	xlab=expression(sigma[p]), ylab=expression(mu[p]),
+	col=c(rep("red", dn), rep("green", up)))
+text(x=sig.v, y=mu.v, labels="VALE3", pos=4)
+text(x=sig.i, y=mu.i, labels="PETR3", pos=4)
+text(x=gmin.port$sd, y=gmin.port$er, labels="Global min", pos=2)
+points(gmin.port$sd, gmin.port$er, type="b", col="blue3", pch=16, cex=1.5)
+points(x=sig.v, y=mu.v, type="b", col="orange3", pch=16, cex=1.5)
+points(x=sig.i, y=mu.i, type="b", col="orange3", pch=16, cex=1.5)
+```
+
+--- &smaller
+
+## Calculando a carteira tangente
+
+Ao considerarmos um ativo livre de risco como mais uma alternativa de investimento chegamos ao seguinte retorno ($\mu_N$) da nova carteira que compõe a carteira com 2 ativos mais o ativo livre de risco
+
+$$
+\mu_N = r_f + x_p (\mu_p - r_f)
+$$
+
+```{r}
+tan.port = tangency.portfolio(muhat.annual, covmat.annual, risk.free=r.f) 
+summary(tan.port, risk.free=r.f)
+```
+
+--- &smaller
+
+## Fronteira eficiente (2 ativos / long-short + $r_f$)
+
+O `x` marca o ponto em que a linha reta saindo da taxa livre de risco **toca** a fronteira eficiente e consequentemente indica a carteira tangente que é a carteira eficiente quando se leva em consideração um ativo livre de risco.
+
+```{r, echo=FALSE, fig.width=14}
+px = which(sig.p == min(sig.p))
+up = sum(mu.p >= mu.p[px])
+dn = sum(mu.p <  mu.p[px])
+plot(sig.p, mu.p, type="b", pch=16, 
+	ylim=c(r.f*0.8, max(mu.p)), xlim=c(0, max(sig.p)),
+	xlab=expression(sigma[p]), ylab=expression(mu[p]),
+	col=c(rep("red", dn), rep("green", up)))
+# global min
+text(x=gmin.port$sd, y=gmin.port$er, labels="Global min", pos=4)
+points(gmin.port$sd, gmin.port$er, type="b", col="blue", pch=16)
+# tangency
+x.t = seq(from=0, to=2, by=0.1)
+mu.p.t = r.f + x.t*(tan.port$er - r.f)
+sig.p.t = x.t*tan.port$sd
+text(x=tan.port$sd, y=tan.port$er, labels="100% Tangency Portfolio", pos=2)
+points(sig.p.t, mu.p.t, type="b", col="gray77", pch=16, mkh=1, cex=0.5)
+points(x=tan.port$sd, y=tan.port$er, type="b", col="black", pch=4, mkh=1, cex=1.5)
+# risk-free
+text(x=0, y=r.f, labels="100% risk-free", pos=4)
+points(x=0, y=r.f, type="b", col="gray77", pch=16, cex=1.5)
+# stocks
+text(x=sig.v, y=mu.v, labels="VALE3", pos=4)
+text(x=sig.i, y=mu.i, labels="PETR3", pos=4)
+points(x=sig.v, y=mu.v, type="b", col="orange3", pch=16, cex=1.5)
+points(x=sig.i, y=mu.i, type="b", col="orange3", pch=16, cex=1.5)
+```
+
+---
+
+## Carteira de mínima variância *long-only*
+
+Vamos agora calcular a carteira de mínima variância impondo a restrição de não ficar vendido em nenhum ativo (*long-only*).
+Dado que para 2 ativos, como visto antes, os ativos caem sobre a fronteira, para produzir uma fronteira eficiente com a restrição de *long-only* é necessário introduzir pelo menos mais um ativo.
+
+```{r}
+filelist <- c('data/VALE3.monthly.raw.csv', 'data/PETR3.monthly.raw.csv', 'data/USIM3.monthly.raw.csv')
+returns.monthly.x <- getReturnsFromYahooFiles(filelist)
+muhat.annual  <- apply(returns.monthly.x, 2, mean)*12
+sigma2.annual <- apply(returns.monthly.x, 2, var)*12
+sigma.annual  <- sqrt(sigma2.annual)
+covmat.annual <- cov(returns.monthly.x)*12
+covhat.annual <- cov(returns.monthly.x)[1,2]*12
+rhohat.annual <- cor(returns.monthly.x)[1,2]
+```
+
+---
+
+## Otimização quadrática
+
+Os problemas de otimização quadrática são descritos como
+
+$$
+\min_x \frac{1}{2}\mathbf{x^\prime D x - d^\prime x}
+$$
+
+Sujeito as restrições
+
+$$
+\mathbf{A^{\prime}}_{neq} \mathbf{x} \ge \mathbf{b}_{neq}
+$$
+
+$$
+\mathbf{A^{\prime}}_{eq} \mathbf{x} = \mathbf{b}_{eq}
+$$
+
+onde condidera-se $m$ restrições em desigualdades e $l$ restrições em igualdades.
+As matrizes tem dimensões $\mathbf{D} \equiv n\times n$,
+$\mathbf{x} \equiv n\times 1$,
+$\mathbf{d} \equiv n\times 1$,
+$\mathbf{A^{\prime}}_{neq} \equiv m\times n$,
+$\mathbf{b}_{neq} \equiv m\times 1$,
+$\mathbf{A^{\prime}}_{eq} \equiv l\times n$ e 
+$\mathbf{b}_{eq} \equiv l\times 1$.
+
+--- &smaller
+
+## Definindo o problema de otimização de carteiras
+
+Para colocarmos o problema de otimização de carteiras no *framework* de otimização quadrática temos que
+
+$$
+\mathbf{D} = 2\mathbf{\Sigma}\,\, \mathrm{e} \,\, \mathbf{d} = \mathbf{0}
+$$
+
+o vetor $x$ é o vetor de pesos onde $x_i \ge 0$ para $i = 1,2,\dots,n$, onde $n$ é a quantidade de ativos presentes na carteira.
+Esta restrição representa uma inequação e deve ser especificada com $l = n$
+
+$$
+\mathbf{A^{\prime}}_{neq} = \mathbf{I}_{n},\, \mathbf{b}_{neq} = \mathbf{0}
+$$
+
+temos ainda $m = 1$ restrição em igualdade, onde $\mathbf{x^{\prime} 1} = 1$ e deve ser especificada como
+
+$$
+\mathbf{A^{\prime}}_{eq} = \mathbf{1}^\prime,\, \mathbf{b}_{eq} = 1
+$$
+
+O problema pode ainda ser simplificado fazendo
+
+$$
+\mathbf{A^{\prime}} = \left( \begin{array}{c} \mathbf{1}^\prime \\
+\mathbf{I}_n \end{array} \right),\,
+\mathbf{b} = \left( \begin{array}{c} 1 \\
+\mathbf{0} \end{array} \right)
+$$
+
+---
+
+## Construindo as matrizes
+
+Matriz $\mathbf{D}$
+
+```{r}
+D.mat <- 2*covmat.annual
+```
+```{r, echo=FALSE}
+D.mat
+```
+
+Vetor $\mathbf{d}$
+
+```{r}
+d.vec <- rep(0, 3)
+```
+```{r, echo=FALSE}
+d.vec
+```
+
+---
+
+## Construindo as matrizes
+
+Matriz $\mathbf{A}$
+
+```{r}
+A.mat <- cbind(rep(1, 3), diag(3))
+```
+```{r, echo=FALSE}
+A.mat
+```
+
+Vetor $\mathbf{b}$
+
+```{r}
+b.vec <- c(1, rep(0, 3))
+```
+```{r, echo=FALSE}
+b.vec
+```
+
+--- &smaller
+
+## Utilizando `solve.QP` para minimizar a variância
+
+Utilizamos a função `solve.QP` do pacote `quadprog` para encontrar a solução do problema de otimização.
+
+```{r}
+library(quadprog)
+qp.out <- solve.QP(Dmat=D.mat, dvec=d.vec, Amat=A.mat, bvec=b.vec, meq=1)
+```
+
+A solução, que são os pesos dos ativos na carteira ficam no atributo `solution` da saída da função.
+
+```{r}
+qp.out$solution
+```
+
+---
+
+## Calcular a média e a variância da carteira eficiente
+
+```{r}
+w.gmin.ns <- qp.out$solution
+names(w.gmin.ns) <- names(muhat.annual)
+er.gmin.ns <- as.numeric(crossprod(w.gmin.ns, muhat.annual))
+var.gmin.ns <- as.numeric(t(w.gmin.ns)%*%covmat.annual%*%w.gmin.ns)
+sigma.gmin.ns <- sqrt(var.gmin.ns)
+c(er.gmin.ns, sigma.gmin.ns)
+```
+
+--- &smaller
+
+## Fronteira eficiente (3 ativos / long-only)
+
+A linha verde é a fronteira eficiente *long-short* e a linha em dourada é a fronteira eficiente *long-only*.
+
+```{r, echo=FALSE, fig.width=14}
+# compute and plot efficient frontier with short-sales
+ef <- efficient.frontier(muhat.annual, covmat.annual, alpha.min=-1, 
+                         alpha.max=2, nport=20)
+asset.names <- names(muhat.annual)
+plot(ef$sd, ef$er, type="l", 
+	ylim=c(0.15, 0.24), xlim=c(0.4, 1.0),
+	pch=16, col="darkolivegreen3", cex=2,
+	ylab=expression(mu[p]), xlab=expression(sigma[p]))
+points(sigma.annual, muhat.annual, pch=16, col="black", cex=2)
+text(sigma.gmin.ns, er.gmin.ns, labels="Global min", pos=4)
+text(sigma.annual, muhat.annual, labels=asset.names, pos=4)
+
+# compute efficient frontier with no-short sales
+mu.vals = seq(min(muhat.annual), max(muhat.annual), length.out=20)
+w.mat = matrix(0, length(mu.vals), 3)
+sd.vec = rep(0, length(sigma.annual))
+colnames(w.mat) = names(muhat.annual)
+A.mat = cbind(muhat.annual, rep(1, 3), diag(3))
+for (i in 1:length(mu.vals)) {
+  b.vec = c(mu.vals[i], 1, rep(0, 3))
+  qp.out = solve.QP(Dmat=D.mat, dvec=d.vec,
+                    Amat=A.mat, bvec=b.vec, meq=2)
+  w.mat[i, ] = qp.out$solution
+  sd.vec[i] = sqrt(qp.out$value)
+}
+points(sd.vec, mu.vals, type="b", pch=16, col="orange3", cex=1.5)
+points(sigma.gmin.ns, er.gmin.ns, pch=16, col="green4", cex=1.5)
+```
+--- &thanks
+## Teoria de carteiras de Markowitz

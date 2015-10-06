@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Testes de raiz unitária</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Testes de raiz unitária">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Testes de raiz unitária</h1>
+        <h2>Avaliando estacionariedade em séries temporais financeiras</h2>
+		<p data-config-presenter>
+        <!-- <p>Wilson Freitas<br/>Quant</p> -->
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Recursos</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><a href="index.Rmd">index.Rmd</a></li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="segue dark nobackground" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Testes de Raiz Unitária</h2>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Definição do teste de raiz unitária</h2>
+  </hgroup>
+  <article>
+    <p>Existem diversos testes de raiz unitária (RU)</p>
+
+<ol>
+<li>Augmented Dickey-Fuller (ADF)</li>
+<li>Phillips-Perron (PP)</li>
+<li>Kwiatkowski-Phillips-Schmidt-Shin (KPSS)</li>
+<li>...</li>
+</ol>
+
+<p>Na maioria dos testes a hipótese nula é de que a série tenha raiz unitária, e portanto não seja estacionária, logo:
+\[
+\begin{split}
+H_0: & \textrm{tem raiz unitária (não é estacionária)}\\
+H_1: & \textrm{não tem raiz unitária (é estacionária)}
+\end{split}
+\]</p>
+
+<p><strong>No teste KPSS a hipótese nula é de que não existe raiz unitária.</strong></p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-4" style="background:;">
+	<hgroup>
+		<h2>Implementando o teste de raiz unitária</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Temos uma série temporal \(y_t\) e desejamos estimar o seguinte modelo para esta série:</p>
+
+<p>\[
+y_t = \phi y_{t-1} + \varepsilon_t
+\]</p>
+
+<p>que claramente é um AR(1) e está sujeito a </p>
+
+<p>\[
+\varepsilon_t \sim iid\, N(0, \sigma^2)\,\, \forall \,\, t \\
+\mathrm{E}\left[ \varepsilon_t\varepsilon_s \right] = 0,\,\, \forall \,\, t \neq s
+\]</p>
+
+<p>Para que \(y_t\) seja estacionário temos que obter \(\phi\) que atenda a restrição \(|\phi| < 1\).
+Logo, as hipóteses do teste devem reescritas como:</p>
+
+<p>\[
+\begin{split}
+H_0: & \phi = 1,\, y_t \textrm{ não é estacionário}\\
+H_1: & |\phi| < 1,\, y_t \textrm{ é estacionário}
+\end{split}
+\]</p>
+
+<div class="centered red3" style="margin-top: 2em;">
+    Testar a estacionariedade $\longrightarrow$ teste-$t$ sobre $\hat{\phi}$
+</div>
+
+	</article>
+</slide>
+      <slide class="" id="slide-5" style="background:;">
+	<hgroup>
+		
+	</hgroup> 
+	<article class="smaller">
+		<p>No entanto, é mais comum testar se os coeficientes são nulos de forma que uma simples transformação no modelo nos leva a</p>
+
+<p>\[
+\Delta y_t = (\phi - 1) y_{t-1} + \varepsilon_t = \pi\, y_{t-1} + \varepsilon_t
+\]</p>
+
+<p>e consequentemente novas hipóteses</p>
+
+<p>\[
+\begin{split}
+H_0: & \pi = 0,\, y_t \textrm{ não é estacionário}\\
+H_1: & \pi < 0,\, y_t \textrm{ é estacionário}
+\end{split}
+\]</p>
+
+<div class="red3 centered"  style="margin-top: 2em; margin-bottom: 2em;">
+    Esta abordagem é utilizada no teste ADF.
+</div>
+
+<p>Infelizmente, na prática a teoria é outra de forma que nem sempre é possível utilizar apenas um AR(1) para identificar a existência de raiz unitária.
+Algumas séries possuem uma estrutura mais complexa e um simples AR(1) não é suficiente para capturá-la.</p>
+
+<p>Veremos a seguir como os testes ADF e PP contornam este problema.</p>
+
+	</article>
+</slide>
+      <slide class="segue dark nobackground" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Testes de Dickey-Fuller</h2>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-7" style="background:;">
+	<hgroup>
+		<h2>Testes de Dickey-Fuller</h2>
+	</hgroup> 
+	<article class="smaller">
+		<p>Segundo Dickey-Fuller, devem ser consideradas 3 abordagens para realizar o teste de raiz unitária (considerando \(H_0: \pi = 0\)).</p>
+
+<h5>Random-walk com drift e tendência deterministica</h5>
+
+<p>\[
+\Delta Z_t = \beta_0 + \beta_1 t + \pi Z_{t-1} + \sum_{i=1}^{p-1} \delta_i \Delta Z_{t-i} + \varepsilon_t
+\]</p>
+
+<h5>Random-walk com drift</h5>
+
+<p>\[
+\Delta Z_t = \beta_0 + \pi Z_{t-1} + \sum_{i=1}^{p-1} \delta_i \Delta Z_{t-i} + \varepsilon_t
+\]</p>
+
+<h5>Random-walk plain-vanilla</h5>
+
+<p>\[
+\Delta Z_t = \pi Z_{t-1} + \sum_{i=1}^{p-1} \delta_i \Delta Z_{t-i} + \varepsilon_t
+\]</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-8" style="background:;">
+	<hgroup>
+		
+	</hgroup> 
+	<article class="smaller">
+		<ul>
+<li>A estrutura do AR(1) foi extendida para acomodar uma estrutura ARMA(p,q) mais geral.</li>
+<li>Essa extenção é conhecida como augmented Dickey-Fuller (ADF).</li>
+<li>O teste considerando apenas o modelo AR(1) é o teste de Dickey-Fuller padrão que pode ser tratado como uma caso particular do teste ADF quando \(p=1\).</li>
+<li>A estatística de interesse é
+\[
+\tau_i = \frac{\hat{\phi}-1}{S_{\hat{\phi}}}
+\]
+onde \(i=1,2,3\) representam os modelos propostos.</li>
+<li>Note que apesar do teste de RU ter uma <em>jeitão</em> de teste-\(t\), na prática não é, pois a distribuição de \(\tau_i\) não é uma \(t\) de Student.</li>
+<li>Cada modelo proposto possui uma distribuição para \(\tau_i\).</li>
+<li>As distribuições para \(\tau_i\) são obtidas através de simulações de Monte-Carlo (MacKinnon 1996).</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <ul>
+<li>O gráfico abaixo apresenta os p-valores da estatística \(\tau_i\).</li>
+</ul>
+
+<p style="text-align:center;">
+    <img src="figure/mackinnon.png">
+</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="segue dark nobackground" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Teste ADF no R</h2>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-11" style="background:;">
+	<hgroup>
+		
+	</hgroup> 
+	<article class="smaller">
+		<p>O teste ADF no R está na função <code>ur.df</code> do pacote <a href="http://cran.r-project.org/web/packages/urca/"><code>urca</code></a> implementado por <a href="http://www.pfaffikus.de/">Bernhard Pfaff</a> autor do livro <a href="http://www.amazon.com/Analysis-Integrated-Cointegrated-Time-Series/dp/0387759662/ref=sr_1_1?ie=UTF8&amp;qid=1354657433&amp;sr=8-1&amp;keywords=Bernhard+Pfaff">Analysis of Integrated and Cointegrated Time Series with R (Use R!)</a>.</p>
+
+<pre><code class="r">args(ur.df)
+</code></pre>
+
+<pre><code>## function (y, type = c(&quot;none&quot;, &quot;drift&quot;, &quot;trend&quot;), lags = 1, selectlags = c(&quot;Fixed&quot;, 
+##     &quot;AIC&quot;, &quot;BIC&quot;)) 
+## NULL
+</code></pre>
+
+<ul>
+<li><code>type</code> recebe o modelo a ser considerado na realização do teste. <code>none</code> define o modelo random-walk plain-vanilla e os demais parâmetros são auto-explicativos.</li>
+<li><code>selectlags</code> define qual o critério será utilizado para a seleção do modelo estimado. <code>Fixed</code> é o padrão de forma que o modelo é estimado com os <code>lags</code> fornecidos e não há seleção de modelo.</li>
+<li><code>lags</code> define a quantidade de lags a ser utilizada na estimação da parte ARMA(p,q) do modelo. Este parâmetro deve ser utilizado em conjunto com o parâmetro <code>selectlags</code>. Se <code>selectlags</code> for <code>AIC</code> ou <code>BIC</code> o valor de <code>lags</code> é a quantidade máxima de parâmetros que um modelo poderá possuir. Logo, na dúvida chute um número razoável para <code>lags</code> e reze, porque a partir daqui já virou uma questão de fé.</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-12" style="background:;">
+	<hgroup>
+		
+	</hgroup> 
+	<article class="smaller">
+		<p>Vamos aplicar o teste ADF a série diária do log do BOVESPA para o ano de 2011.
+Note que a série claramente apresenta uma tendência de queda, e isto para mim são bons indícios de que o modelo com tendência deterministica seja adequado para realizar o teste de RU.</p>
+
+<p style="text-align:center;">
+    <img src="figure/BVSP.png">
+</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-13" style="background:;">
+	<hgroup>
+		
+	</hgroup> 
+	<article class="smaller">
+		<p>Começemos com <code>type=&quot;trend&quot;</code>, <code>lags=4</code> e <code>selectlags=&quot;BIC&quot;</code> e soca a bota.</p>
+
+<pre><code class="r">library(urca)
+ur &lt;- ur.df(y = BVSP.price, lags = 4, type = &quot;trend&quot;, selectlags = &quot;BIC&quot;)
+ur@testreg
+</code></pre>
+
+<pre><code>## 
+## Call:
+## lm(formula = z.diff ~ z.lag.1 + 1 + tt + z.diff.lag)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.08919 -0.00895  0.00070  0.00934  0.03885 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)  5.51e-01   2.38e-01    2.31    0.022 *
+## z.lag.1     -4.95e-02   2.14e-02   -2.32    0.021 *
+## tt          -4.65e-05   2.74e-05   -1.70    0.091 .
+## z.diff.lag  -2.18e-02   6.47e-02   -0.34    0.736  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 
+## 
+## Residual standard error: 0.0156 on 240 degrees of freedom
+## Multiple R-squared: 0.0252,  Adjusted R-squared: 0.013 
+## F-statistic: 2.07 on 3 and 240 DF,  p-value: 0.105
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-14" style="background:;">
+	<hgroup>
+		<h3>Conclusões</h3>
+	</hgroup> 
+	<article class="smaller">
+		<ul>
+<li>O modelo selecionado foi <code>lm(formula = z.diff ~ z.lag.1 + 1 + tt + z.diff.lag)</code> com <code>lags=1</code>, mesmo fornecendo <code>lags=4</code></li>
+<li>O coeficiente da tendência <code>tt</code> é negativo mantendo a coerência com o gráfico.</li>
+<li>O coeficiente <code>z.lag.1</code>, parâmetro de interesse para o teste de raiz unitária e para avaliar a sua insignificância precisamos da tabela de valores críticos que fica na variável <code>ur@cval</code> do teste.</li>
+</ul>
+
+<pre><code>##       1pct  5pct 10pct
+## tau3 -3.99 -3.43 -3.13
+## phi2  6.22  4.75  4.07
+## phi3  8.43  6.49  5.47
+</code></pre>
+
+<ul>
+<li><code>tau3</code> é a estatística referente ao coeficiente <code>z.lag.1</code> e estes são os dados que interessam, a informação de significância da tabela <code>Coefficients</code> refere-se ao teste-\(t\).
+Na mesma tabela temos que o valor da estatistíca para <code>z.lag.1</code> é -2.32 e avaliando os níveis críticos de <code>tau3</code> concluímos que não é possível rejeitar a hipótese nula para <code>z.lag.1</code> e, portanto, a série tem raiz unitária e é não-estacionária.</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-15">
+<hgroup>
+  <h3>Ahhh ... os resíduos</h3>
+</hgroup>
+<article class="flexbox vcenter">
+<p>É importante, obviamente, dar uma olhada nos resíduos.
+A variável <code>ur@res</code> contem os resíduos e o comando <code>plot(ur)</code> gera o gráfico abaixo.</p>
+
+<p><img src="figure/p1.png" alt="plot of chunk p1"> </p>
+
+</article>
+<!-- Presenter Notes -->
+</slide>
+      <slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h3>Sanity-check</h3>
+  </hgroup>
+  <article>
+    <ul>
+<li>Apenas para ter certeza de que as coisas funcionam como deveriam funcionar vamos realizar o teste ADF com um random-walk gerado.</li>
+<li>Vamos usar <code>type=&quot;none&quot;</code>, pois o random-walk foi gerado sem drift e sem tendência deterministica.</li>
+</ul>
+
+<pre><code class="r">ur &lt;- ur.df(y = cumsum(c(100, rnorm(250))), lags = 4, type = &quot;none&quot;, selectlags = &quot;BIC&quot;)
+</code></pre>
+
+<p>Os resultados estão no próximo slide.</p>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    
+  </hgroup>
+  <article>
+    <pre><code>## 
+## Call:
+## lm(formula = z.diff ~ z.lag.1 - 1 + z.diff.lag)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -2.320 -0.647 -0.111  0.599  3.184 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)
+## z.lag.1    -0.000165   0.000593   -0.28     0.78
+## z.diff.lag -0.058213   0.063937   -0.91     0.36
+## 
+## Residual standard error: 0.944 on 244 degrees of freedom
+## Multiple R-squared: 0.00368, Adjusted R-squared: -0.00448 
+## F-statistic: 0.451 on 2 and 244 DF,  p-value: 0.638
+</code></pre>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h3>Conclusões</h3>
+  </hgroup>
+  <article>
+    <ul>
+<li>O valor da estatística de interesse é -0.28.</li>
+<li>Os valores críticos para o teste são</li>
+</ul>
+
+<pre><code>##       1pct  5pct 10pct
+## tau1 -2.58 -1.95 -1.62
+</code></pre>
+
+<ul>
+<li>Note que <code>tau1</code> é a variável de interesse, pois refere-se ao modelo random-walk plain-vanilla e os seus valores críticos são diferentes daqueles obtidos no teste com a série do Bovespa onde a variável era <code>tau3</code>.</li>
+<li>Não rejeitamos a hipótese nula e portanto:
+
+<ul>
+<li><span class="red3">A série tem raiz unitária</span></li>
+<li>A série é não-estacionária</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="thank-you-slide segue nobackground">
+  <article class="flexbox vleft auto-fadein">
+	<h2>Testes de raiz unitária</h2>
+	
+  </article>
+  <p class="auto-fadein" data-config-contact>
+    <!-- populated from slide_config.json -->
+  </p>
+</slide>
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

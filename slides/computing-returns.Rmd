@@ -1,0 +1,375 @@
+---
+
+title       : Computing Returns  
+subtitle    :  
+author      : Wilson Freitas  
+job         : Quant  
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}  
+highlighter : highlight.js  # {highlight.js, prettify, highlight}  
+hitheme     : tomorrow      #   
+widgets     : [mathjax]     # {mathjax, quiz, bootstrap}  
+mode        : selfcontained # {standalone, draft, selfcontained}  
+
+---
+
+```{r setup, include=FALSE}
+options(digits=4, width=80)
+```
+
+## download resources
+
+- [PETR4.SA.csv](data/PETR4.SA.csv) file
+- [index.Rmd](index.Rmd) source file
+
+---
+
+## loading time series into data.frame
+
+```{r}
+petr4.df = read.csv(file="data/PETR4.SA.csv", header=TRUE, stringsAsFactors=FALSE)
+class(petr4.df)
+str(petr4.df)
+```
+
+---
+
+## data.frame `head`
+
+```{r}
+head(petr4.df)
+```
+
+---
+
+## data.frame `tail`
+
+```{r}
+tail(petr4.df)
+```
+
+---
+
+## data.frame properties
+
+```{r}
+colnames(petr4.df)
+class(petr4.df$Date)
+class(petr4.df$Adj.Close)
+```
+
+---
+
+## indexing data.frame - always returns a vector
+
+```{r}
+petr4.df[1:5, "Adj.Close"] # using column name
+petr4.df[1:5, 7] # using column index
+petr4.df$Adj.Close[1:5] # using attribite reffering to column
+```
+
+---
+
+## `drop=FALSE` keeps data.frame structure
+
+```{r}
+petr4.df[1:5, "Adj.Close", drop=FALSE]
+```
+
+---
+
+## extracting data.frame subsets isn't easy
+
+```{r}
+c(which(petr4.df$Date == "2010-01-04"), which(petr4.df == "2010-07-01"))
+petr4.df[which(petr4.df == "2010-01-04"):which(petr4.df == "2010-07-01"),]
+```
+
+---
+
+## defining rownames
+
+```{r}
+petr4Prices.df = petr4.df[, "Adj.Close", drop=FALSE]
+rownames(petr4Prices.df) = petr4.df$Date
+head(petr4Prices.df)
+```
+
+---
+
+## indexing by rownames
+
+```{r}
+petr4Prices.df["2010-01-04", 1]
+petr4Prices.df["2010-01-04", 1, drop=FALSE]
+```
+
+---
+
+## plotting data
+
+```{r}
+plot(petr4.df$Adj.Close)
+```
+
+---
+
+```{r}
+plot(petr4.df$Adj.Close, type="l", col="blue", lwd=2, ylab="Adjusted close", main="Monthly closing price of PETR4")
+legend(x="topleft", legend="PETR4", lty=1, lwd=2, col="blue")
+```
+
+---
+
+## simple returns
+
+$$
+R_t = \frac{P_t - P_{t-1}}{P_{t-1}}
+$$
+
+```{r}
+n = nrow(petr4Prices.df) # number of rows
+petr4.ret = (petr4Prices.df[2:n,1] - petr4Prices.df[1:(n-1),1]) / petr4Prices.df[1:(n-1),1]
+head(petr4.ret)
+```
+
+---
+
+### `petr4.ret` is not a data.frame object
+
+```{r}
+class(petr4.ret)
+names(petr4.ret) = rownames(petr4Prices.df)[2:n] # adding names to a vector
+head(petr4.ret)
+```
+---
+
+### simple returns as data.frame objects - use `drop=FALSE`
+
+```{r}
+petr4.ret.df = (petr4Prices.df[2:n,1,drop=FALSE] - petr4Prices.df[1:(n-1),1,drop=FALSE]) / petr4Prices.df[1:(n-1),1,drop=FALSE]
+head(petr4.ret.df)
+```
+
+---
+
+## continuously compounded returns
+
+$$
+r_t = \log(1 + R_t) = \log \left( \frac{P_t}{P_{t-1}} \right)
+$$
+
+### easy way
+
+```{r}
+petr4.ccret = log(1 + petr4.ret)
+head(petr4.ccret)
+```
+---
+
+### alternatively
+
+```{r}
+petr4.ccret = log(petr4Prices.df[2:n,1]) - log(petr4Prices.df[1:(n-1),1])
+names(petr4.ccret) = rownames(petr4Prices.df)[2:n]
+head(petr4.ccret)
+```
+
+---
+
+## comparing returns
+
+```{r}
+head(cbind(petr4.ret, petr4.ccret))
+```
+
+---
+
+## plotting simple and continuous returns
+
+```{r, eval=FALSE}
+par(mfrow=c(2,1)) # split screen into 2 rows and 1 column
+plot(petr4.ret, main="Monthly Simple Returns on PETR4", ylab="Return", type="l", col="blue", lwd=2)
+abline(h=0)     
+plot(petr4.ccret, main="Monthly Continuously Compounded Returns on PETR4", ylab="Return", type="l", col="blue", lwd=2)
+abline(h=0)
+par(mfrow=c(1,1)) # reset the screen to 1 row and 1 column
+```
+
+---
+
+```{r, echo=FALSE}
+par(mfrow=c(2,1)) # split screen into 2 rows and 1 column
+plot(petr4.ret, type="l", col="blue", lwd=2, ylab="Return", 
+	main="Monthly Simple Returns on PETR4")
+abline(h=0)     
+plot(petr4.ccret, type="l", col="blue", lwd=2, ylab="Return",
+	main="Monthly Continuously Compounded Returns on PETR4")
+abline(h=0)
+par(mfrow=c(1,1)) # reset the screen to 1 row and 1 column
+```
+
+---
+
+## on the same graph
+
+```{r, eval=FALSE}
+plot(petr4.ret, main="Monthly Returns on PETR4", ylab="Return", type="l", col="blue", lwd=2)
+abline(h=0)     
+lines(petr4.ccret, col="red", lwd=2)
+legend(x="topright", legend=c("Simple", "CC"), 
+	lty=1, lwd=2, col=c("blue","red"))
+```
+
+---
+
+```{r, echo=FALSE}
+plot(petr4.ret, main="Monthly Returns on PETR4", ylab="Return", type="l", col="blue", lwd=2)
+abline(h=0)     
+lines(petr4.ccret, col="red", lwd=2)
+legend(x="topright", legend=c("Simple", "CC"), 
+	lty=1, lwd=2, col=c("blue","red"))
+```
+
+---
+
+```{r}
+petr4.gret = 1 + petr4.ret # compute gross returns
+petr4.fv = cumprod(petr4.gret) # compute future values
+plot(petr4.fv, type="l", col="blue", lwd=2, ylab="$$", main="growth of $1 invested in PETR4")
+```
+
+---
+
+## could life be easier?
+
+R has a large number of packages that make life easier.
+
+- [PerformanceAnalytics](http://cran.fhcrc.org/web/packages/PerformanceAnalytics/index.html): Econometric tools for performance and risk analysis
+- [quantmod](http://cran.r-project.org/web/packages/quantmod/index.html): functions for quantitative modelling in finance
+- [zoo](http://cran.fhcrc.org/web/packages/zoo/index.html): Z's ordered observations
+- [xts](http://cran.fhcrc.org/web/packages/xts/index.html): Extensible time series
+- [tseries](http://cran.fhcrc.org/web/packages/tseries/index.html): Time series analysis and computational finance
+- [fPortfolio](http://cran.r-project.org/web/packages/fPortfolio/index.html): Portfolio Selection and Optimization
+- [mvtnorm](http://cran.fhcrc.org/web/packages/mvtnorm/index.html): Multivariate normal and multivariate t distribution
+
+---
+
+## CRAN
+
+<iframe src='http://cran.r-project.org/index.html' height="600px"></iframe>
+
+---
+
+## CRAN Task Views
+
+<iframe src='http://cran.r-project.org/web/views/' height="600px"></iframe>
+
+---
+
+## Finance Task View
+
+<iframe src='http://cran.r-project.org/web/views/Finance.html' height="600px"></iframe>
+
+---
+
+## PerformanceAnalytics package
+
+```{r}
+library(PerformanceAnalytics)
+```
+
+---
+
+```{r}
+dates.petr4 = as.yearmon(petr4.df$Date, format="%Y-%m-%d") # convert to month-year
+head(dates.petr4)
+petr4.z = zoo(x=petr4.df$Adj.Close, order.by=dates.petr4) # create zoo object
+class(petr4.z)
+head(petr4.z)
+```
+
+---
+
+```{r}
+plot(petr4.z, lwd=2, col="blue", ylab="Prices", xlab="Months")
+```
+
+---
+
+## subsetting zoo objects
+
+```{r}
+petr4.z[as.yearmon(c("Jan 2010", "Jan 2011"))]
+window(petr4.z, start=as.yearmon("Jan 2010"), end=as.yearmon("Jan 2011"))
+```
+
+---
+
+## computing returns made simple
+
+### core (no-package dependency)
+
+```{r}
+petr4Ret.z = diff(petr4.z)/lag(petr4.z, k=-1)
+petr4Retcc.z = diff(log(petr4.z))
+head(merge(petr4Ret.z, petr4Retcc.z))
+```
+
+---
+
+### with PerformanceAnalytics functions
+
+```{r}
+petr4Ret.z = CalculateReturns(petr4.z, method="simple")
+petr4Retcc.z = CalculateReturns(petr4.z, method="compound")
+head(merge(petr4Ret.z, petr4Retcc.z))
+```
+
+```{r, echo=FALSE}
+petr4Ret.z = diff(petr4.z)/lag(petr4.z, k=-1)
+petr4Retcc.z = diff(log(petr4.z))
+```
+
+---
+
+```{r}
+chart.CumReturns(petr4Ret.z, lwd=2, col="red", main="Growth of $1")
+```
+
+---
+
+## quantmod package
+
+```{r}
+library(quantmod)
+```
+
+---
+
+```{r}
+getSymbols("YHOO") # fetching time series as xts object
+class(YHOO)
+colnames(YHOO)
+```
+
+---
+
+```{r}
+start(YHOO) # first date
+end(YHOO) # last date
+```
+
+---
+
+```{r}
+head(YHOO)
+```
+
+---
+
+```{r}
+chartSeries(YHOO, theme=chartTheme('white'))
+```
+
+--- &thanks
+## Computing Returns

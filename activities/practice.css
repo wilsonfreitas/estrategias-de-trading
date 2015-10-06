@@ -1,0 +1,42 @@
+/* Cool colors
+	#86b1cd - blue ?? gardenia
+	color: #3B80AE; other blue
+*/
+
+body {
+    width: 80%;
+    padding-top: 5px;
+    padding-left: 10%;
+	background: #FFFFFF;
+	font-family: Verdana, sans-serif;
+    counter-reset: h2counter;
+}
+
+h1 {
+    border-bottom: solid black 5px;
+    text-align: center;
+}
+
+h2 {
+    border-bottom: solid black 1px;
+    padding: 2px;
+}
+
+h2:before {
+    content: counter(h2counter) ".\0000a0\0000a0";
+    counter-increment: h2counter;
+}
+
+code {
+	font-family: 'Andale Mono', Monospace;
+	font-size: 13px;
+}
+
+pre {
+	background: #333333;
+	border: solid 1px #000;
+	color: white;
+	padding: 15px;
+	line-height: 1.1;
+	white-space: pre-wrap;       /* css-3 */
+}

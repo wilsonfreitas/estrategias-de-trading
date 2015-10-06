@@ -1,0 +1,80 @@
+
+
+<!-- 
+TradeAnalytics packages
+https://r-forge.r-project.org/R/?group_id=316
+
+http://www.fmlabs.com/reference/default.htm
+http://www.equis.com/Customer/Resources/TAAZ/?p=0
+http://www.linnsoft.com/tour/technicalindicators.htm
+http://stockcharts.com/education/IndicatorAnalysis/
+
+http://www.r-bloggers.com/tag/TTR/
+
+http://www.r-bloggers.com/how-to-backtest-a-strategy-in-r/
+http://gekkoquant.com/2012/05/13/quantmod-basics-stock-data-download-and-manipulation/
+http://www.quantmod.com/Columbia2008/
+http://www.quantmod.com/Rmetrics2008/
+http://www.quantmod.com/Rmetrics2009/
+http://www.quantmod.com/Vienna2009/
+http://blog.fosstrading.com/2011/03/how-to-backtest-strategy-in-r.html
+http://superblax.blogspot.com.br/2011/12/using-r-for-backtesting-and-charting.html
+http://jeffreybreen.wordpress.com/2011/05/07/quantmod-silver-prices/
+http://r.789695.n4.nabble.com/R-Finance-Tutorial-td2273697.html
+http://www.r-bloggers.com/tag/quantmod/
+http://theaverageinvestor.wordpress.com/category/r/
+http://www.aphysicistinwallstreet.com/2011/01/blackbox-trading-strategy-using.html
+http://www.aphysicistinwallstreet.com/2010/11/example-rapidminer-r-for-trading.html
+http://blog.quanttrader.org/2011/03/
+
+https://www.rmetrics.org/files/Meielisalp2008/
+https://www.rmetrics.org/files/Meielisalp2009/
+-->
+
+# Backtesting
+
+```{r, fig.width=14}
+## require(quantmod)
+## require(PerformanceAnalytics)
+## 
+## # Step 1: Get the data
+## getSymbols("^BVSP")
+## 
+## # Step 2: Create your indicator
+## dvi <- DVI(Cl(BVSP))
+## 
+## # Step 3: Construct your trading rule
+## sig <- Lag(ifelse(dvi$dvi < 0.5, 1, -1))
+## 
+## # Step 4: The trading rules/equity curve
+## ret <- ROC(Cl(BVSP))*sig
+## ret <- ret['2009-06-02/2010-09-07']
+## eq <- exp(cumsum(ret))
+## plot(eq)
+## 
+# Step 5: Evaluate strategy performance
+#table.Drawdowns(ret, top=10)
+#table.DownsideRisk(ret)
+#charts.PerformanceSummary(ret)
+```
+
+# TTR
+
+
+```{r}
+VALE3.SA.sma.21 <- SMA(Cl(VALE3.SA), n=21)
+VALE3.SA.sma.126 <- SMA(Cl(VALE3.SA), n=126)
+sig <- Lag(ifelse(VALE3.SA.sma.21 > VALE3.SA.sma.126, 1, -1))
+ret <- ROC(Cl(VALE3.SA))*sig
+p <- "2011/2012"
+plot(VALE3.SA[p])
+lines(VALE3.SA.sma.21[p], col="blue")
+lines(VALE3.SA.sma.126[p], col="blue3")
+
+
+ret <- ret[p]
+eq <- exp(cumsum(ret))
+plot(eq)
+```
+
+

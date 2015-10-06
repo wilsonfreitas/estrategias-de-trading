@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Testes de cointegração</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Testes de cointegração">
+  <meta name="author" content="Wilson Freitas">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+    <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+    <!-- END LOGO SLIDE -->
+    
+
+    <!-- TITLE SLIDE -->
+    <!-- Should I move this to a Local Layout File? -->
+    <slide class="title-slide segue nobackground">
+      <hgroup class="auto-fadein">
+        <h1>Testes de cointegração</h1>
+        <h2>Avaliando a existência de relação de conintegração entre séries temporais</h2>
+		<p data-config-presenter>
+        <!-- <p>Wilson Freitas<br/>Quant</p> -->
+      </hgroup>
+          </slide>
+
+    <!-- SLIDES -->
+      <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Recursos</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li><a href="index.Rmd">index.Rmd</a></li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="segue dark nobackground" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Teste de Engle &amp; Granger (EG)</h2>
+  </hgroup>
+  <article>
+    
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-3" style="background:;">
+	<hgroup>
+		<h2>Teste de Engle &amp; Granger</h2>
+	</hgroup> 
+	<article class="smaller">
+		<ul>
+<li>Objetivo: testar a existência de cointegração entre duas séries temporais \(I(1)\) (\(y_{1,t}\) e \(y_{2,t}\))</li>
+<li>Rodar a regressão (MQO)
+\[ y_{1,t} = \alpha + \beta y_{2,t} + \varepsilon_{1,t} \]</li>
+<li>Realizar teste de raiz unitária (RU) para os resíduos \(\hat{\varepsilon}_{1,t} = y_{1,t} - \hat{\alpha} - \hat{\beta} y_{2,t}\) sob o seguinte modelo
+\[
+\hat{\varepsilon}_{1,t} = \phi \hat{\varepsilon}_{1,t-1} + \eta_t
+\]</li>
+<li>Onde as seguintes hipóteses devem ser testadas.
+\[
+\begin{split}
+H_0 &: \hat{\varepsilon}_{1,t}\,\textrm{tem RU} \longrightarrow \textrm{não há cointegração} \\
+H_1 &: \hat{\varepsilon}_{1,t}\,\textrm{não tem RU} \longrightarrow \textrm{há cointegração}
+\end{split}
+\]</li>
+<li>O teste de raiz unitária sobre os resíduos deve ser realizado <strong>sem drift</strong> e <strong>sem tendência deterministica</strong>.</li>
+<li>Os resíduos \(\hat{\varepsilon_{1,t}}\) necessariamente terão média nula, exceto nos casos em que a amostra é pequena e \(\hat{\varepsilon_{1,t}}\) possui um valor absolute alto.</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Teste de Engle &amp; Granger (valores críticos)</h2>
+  </hgroup>
+  <article>
+    <ul>
+<li>Os valores críticos do teste RU para os resíduos são <strong>diferentes</strong> dos utilizados no teste RU-ADF.</li>
+<li>Isso acontece porque os testes RU são realizados sobre uma série temporal observada e aqui o teste é realizado sobre uma série temporal estimada, obtida através do processo de estimação de \(\hat{\alpha}\) e \(\hat{\beta}\).</li>
+<li>Se tivessemos os valores <strong>reais</strong> de \(\alpha\) e \(\beta\) poderiamos utilizá-los para obter os resíduos e assim executar o teste de raiz unitária sobre eles utilizando os mesmos valores críticos utilizados no teste ADF.</li>
+<li>Felizmente MacKinnon obteve estes valores críticos para os testes de cointegração (MacKinnon, J.G. (2010), &quot;Critical Values for Cointegration Tests,&quot; Queen’s Economics Department Working Paper No. 1227).</li>
+</ul>
+
+  </article>
+  <!-- presenter notes -->
+</slide>
+
+      <slide class="" id="slide-5" style="background:;">
+	<hgroup>
+		<h2>Teste de Engle &amp; Granger (particularidades)</h2>
+	</hgroup> 
+	<article class="smaller">
+		<ul>
+<li>Consideremos o processo gerador: \(z_{t} = \alpha + \beta z_{t-1} + \eta_{t}\).</li>
+<li>Quando o processo gerador da série temporal é sem drift, \(\alpha = 0\), a estatística do teste RU tem uma distribuição de Dickey-Fuller (DF).</li>
+<li>Quando \(\alpha \neq 0\) a estatística do teste RU é \(N(0,1)\), assintoticamente, e em amostras pequenas (finitas) esta distribuição <em>talvez</em> possa ser aproximada da distribuição de DF.</li>
+</ul>
+
+<hr>
+
+<ul>
+<li>No teste de EG a distribuição da estatística do teste de RU depende de \(\alpha\) (do modelo \(y_{1,t} = \alpha + \beta y_{2,t} + \varepsilon_{1,t}\)), no entanto, as tabelas assumem \(\alpha = 0\) e isso pode gerar erros quando \(\alpha \neq 0\).</li>
+<li>Uma forma de evitar a dependência em \(\alpha\) na distribuição da estatística de teste é introduzir um termo de tendência deterministica na regressão
+\[
+y_{1,t} = \alpha_0 t + \alpha + \beta y_{2,t} + \varepsilon_{1,t}
+\]</li>
+<li>Assim a distribuição da estatística torna-se invariante a \(\alpha\) embora seja diferente do caso sem a tendência deterministica.</li>
+<li>Dessa maneira, temos 2 variantes para o teste de EG: <strong>com drift</strong> e <strong>com tendência deterministica</strong>.</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-6" style="background:;">
+	<hgroup>
+		<h2>Teste de Engle &amp; Granger</h2>
+	</hgroup> 
+	<article class="smaller">
+		<h3>Curiosidades</h3>
+
+<ul>
+<li>Qualquer variável pode ser escolhida como regressor, podemos escolher tanto \(y_{1,t}\) quanto \(y_{2,t}\).</li>
+<li>No limite o teste pode ser realizado com ambas as variáveis, separadamente, para tornar a análise mais robusta.</li>
+<li>Este teste pode ser realizado ainda para avaliar a existência de cointegração em \(N\) séries temporais simultâneamente.</li>
+</ul>
+
+<hr>
+
+<h3>Dúvidas</h3>
+
+<ul>
+<li>Quando faz sentido utilizar a tendência deterministica?</li>
+<li>Engle &amp; Yoo (1991) argumentam que existem boas razões para introduzir tendência deterministica.</li>
+<li>É importante notar que essa diferença na modelagem é referente a regressão na qual os resíduos são estimados e sob os quais o teste de RU é executado.</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-7" style="background:;">
+	<hgroup>
+		
+	</hgroup> 
+	<article class="smaller">
+		<p>Gerando séries claramente cointegradas</p>
+
+<pre><code class="r">set.seed(12345)
+e1 &lt;- rnorm(250, mean = 0, sd = 0.5)
+e2 &lt;- rnorm(250, mean = 0, sd = 0.5)
+u.ar3 &lt;- arima.sim(model = list(ar = c(0.6, -0.2, 0.1)), n = 250, innov = e1)
+y2 &lt;- cumsum(e2)
+y1 &lt;- u.ar3 + 0.5 * y2
+</code></pre>
+
+<p style="text-align:center;">
+    <img src="figure/coint.png">
+</p>
+
+	</article>
+</slide>
+      <slide class="" id="slide-8" style="background:;">
+	<hgroup>
+		<h3>Passo 1</h3>
+	</hgroup> 
+	<article class="smaller">
+		<p>Estimar regressão entre variáveis <code>y1</code> e <code>y2</code>.</p>
+
+<pre><code class="r">lr &lt;- lm(y1 ~ y2)
+summary(lr)
+</code></pre>
+
+<pre><code>## 
+## Call:
+## lm(formula = y1 ~ y2)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.5557 -0.4407  0.0053  0.4403  1.5273 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.19143    0.05276    3.63  0.00035 ***
+## y2           0.48218    0.00939   51.36  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 
+## 
+## Residual standard error: 0.608 on 248 degrees of freedom
+## Multiple R-squared: 0.914,   Adjusted R-squared: 0.914 
+## F-statistic: 2.64e+03 on 1 and 248 DF,  p-value: &lt;2e-16
+</code></pre>
+
+	</article>
+</slide>
+      <slide class="" id="slide-9">
+<hgroup>
+  <h3>Resíduos da regressão</h3>
+</hgroup>
+<article class="flexbox vcenter">
+<p><img src="figure/unnamed-chunk-3.png" alt="plot of chunk unnamed-chunk-3"> </p>
+
+</article>
+<!-- Presenter Notes -->
+</slide>
+      <slide class="" id="slide-10" style="background:;">
+	<hgroup>
+		<h3>Passo 2</h3>
+	</hgroup> 
+	<article class="smaller">
+		<p>Testar a existência de raiz unitária nos resíduos.</p>
+
+<pre><code class="r">library(urca)
+ur &lt;- ur.df(y = residuals(lr), lags = 4, type = &quot;none&quot;, selectlags = &quot;BIC&quot;)
+ur@teststat
+</code></pre>
+
+<pre><code>##             tau1
+## statistic -9.809
+</code></pre>
+
+<p>Valores críticos</p>
+
+<pre><code>##        1pct   5pct  10pct
+## tau1 -3.943 -3.362 -3.063
+</code></pre>
+
+<ul class="build">
+    <li class="red3">Não podemos aceitar a hipótese nula de existência de raiz unitária, portanto, não podemos rejeitar a hipótese de que as séries são <strong>cointegradas</strong>.</li>
+</ul>
+
+	</article>
+</slide>
+      <slide class="" id="slide-11">
+<hgroup>
+  <h3>Resíduos do teste de raiz unitária</h3>
+</hgroup>
+<article class="flexbox vcenter">
+<p><img src="figure/urplot.png" alt="plot of chunk urplot"> </p>
+
+</article>
+<!-- Presenter Notes -->
+</slide>
+      <slide class="thank-you-slide segue nobackground">
+  <article class="flexbox vleft auto-fadein">
+	<h2>Testes de cointegração</h2>
+	
+  </article>
+  <p class="auto-fadein" data-config-contact>
+    <!-- populated from slide_config.json -->
+  </p>
+</slide>
+    <slide class="backdrop"></slide>
+  </slides>
+
+  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+<!-- Grab CDN jQuery, fall back to local if offline -->
+<!-- 
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+<script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"><\/script>')</script>
+-->
+<script src="libraries/widgets/quiz/js/jquery-1.7.min.js"></script>
+<!-- Load Javascripts for Widgets -->
+<!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+</html>

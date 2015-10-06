@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+ <head>
+  <title>Content alignment in the marker box</title>
+  <style>
+   li::marker { 
+     content: "(" counter(counter) ")";
+     width: 6em;
+     text-align: center;
+   }
+   li {
+     display: list-item;
+     counter-increment: counter;
+   }
+  </style>
+ </head>
+ <body>
+  <ol>
+   <li>This is the first item.</li>
+   <li>This is the second item.</li>
+   <li>This is the third item.</li>
+  </ol>
+ </body>
+</html>

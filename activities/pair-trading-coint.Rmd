@@ -1,0 +1,21 @@
+# Pair-trading strategy using cointegration analysis
+
+Once we have 2 time series (or more) we can investigate the existence of cointegration.
+Once the cointegration is detected we can develop a strategy to explore the mean-reverting behavior of the non-stationary regression`s residuals.
+The following steps must be executed before trying to apply any trading strategy.
+
++ select 2 time series $y_{1,t}$ and $y_{2,t}$.
++ evaluate the existence of cointegration.
+	+ run a linear regression (OLS): $y_{1,t} \sim \alpha + \beta y_{2,t}$
+	+ run a unit root test (EG) on residuals: $\hat\varepsilon_{1,t} = y_{1,t} - \hat\alpha - \hat\beta y_{2,t}$
++ if residuals are stationary, they present a mean-reversion behavior and it can be explored.
++ that behavior will be explored in the days after cointegration is detected
++ the residuals for this period are estimated through the regression's coefficients
+$$
+\hat\varepsilon_{1,t+h} = y_{1,t+h} - \hat\alpha - \hat\beta y_{2,t+h}
+$$
+- if $\hat\varepsilon_{1,t+h} > \phi$ then this is a good time to long $y_1$ and short $\beta y_2$
+	- $y_{1,t} >> \hat\alpha + \hat\beta y_{2,t}$ 
+- if $\hat\varepsilon_{1,t+h} < \phi$ then this is a good time to short $y_1$ and long $\beta y_2$
+	- $y_{1,t} << \hat\alpha + \hat\beta y_{2,t}$ 
+- $\phi$ is a parameter that must be defined by the user
